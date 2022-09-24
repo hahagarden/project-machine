@@ -33,6 +33,9 @@ function Login() {
             <span>log in</span>
           </Link>
         </div>
+        <Link to="/join">
+          <span>join</span>
+        </Link>
       </form>
     </>
   );
