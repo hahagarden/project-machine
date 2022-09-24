@@ -29,7 +29,7 @@ function Login() {
             value={password}
             onChange={onChange}
           />
-          <Link to="/category">
+          <Link to="/category" state={{ username: username }}>
             <span>log in</span>
           </Link>
         </div>
