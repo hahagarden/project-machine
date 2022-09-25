@@ -28,7 +28,7 @@ class User {
   ) {}
 }
 
-const InputBox = styled.input.attrs({ required: true })``;
+const InputBox = styled.input.attrs({ required: true, minLength: 3 })``;
 
 const users = new Users();
 
