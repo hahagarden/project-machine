@@ -28,7 +28,7 @@ function Category() {
         <Button>Movie</Button>
       </Link>
       <Routes>
-        <Route path="/song" element={<Song />} />
+        <Route path="/song/*" element={<Song />} />
         <Route path="/movie" element={<Movie />} />
       </Routes>
     </>
