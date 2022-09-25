@@ -14,7 +14,7 @@ function Movie() {
       <Header></Header>
       <MovieList>
         <Movies>Hi</Movies>
-        <Movies>Hello</Movies>
+        <Movies>Hello movie</Movies>
       </MovieList>
     </Container>
   );

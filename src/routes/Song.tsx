@@ -14,7 +14,7 @@ function Song() {
       <Header></Header>
       <SongList>
         <Songs>Hi</Songs>
-        <Songs>Hello</Songs>
+        <Songs>Hello song</Songs>
       </SongList>
     </Container>
   );
