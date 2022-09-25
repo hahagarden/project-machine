@@ -9,9 +9,25 @@ function Login() {
       ? setUsername(event.target.value)
       : setPassword(event.target.value);
   };
-  const location = useLocation();
-  const state = location.state;
-  console.log(state);
+
+  type LocationState = {
+    state: {
+      users: {
+        users: { [key: string]: object };
+      };
+    };
+  };
+
+  const { state } = useLocation() as LocationState;
+  const users = state.users.users;
+
+  const isUser = () => {
+    if (users[username] === undefined) return false;
+    else {
+      return true;
+    }
+  };
+
   return (
     <>
       <form>
@@ -33,7 +49,7 @@ function Login() {
             onChange={onChange}
           />
           <Link to="/category" state={{ username: username }}>
-            <span>log in</span>
+            <button disabled={isUser() ? false : true}>log in</button>
           </Link>
         </div>
         <Link to="/join">
