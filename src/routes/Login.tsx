@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -9,6 +9,9 @@ function Login() {
       ? setUsername(event.target.value)
       : setPassword(event.target.value);
   };
+  const location = useLocation();
+  const state = location.state;
+  console.log(state);
   return (
     <>
       <form>
