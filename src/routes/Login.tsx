@@ -18,14 +18,23 @@ function Login() {
     };
   };
 
+  interface Iuser {
+    name: string;
+    username: string;
+    password: string;
+  }
+
   const { state } = useLocation() as LocationState;
-  const users = state.users.users;
+  const users = state?.users.users || {};
+  const user = (users?.[username] as Iuser) || {};
 
   const isUser = () => {
     if (users[username] === undefined) return false;
-    else {
-      return true;
-    }
+    else return true;
+  };
+  const correctPassword = () => {
+    if (password === user.password) return true;
+    else return false;
   };
 
   return (
@@ -49,7 +58,9 @@ function Login() {
             onChange={onChange}
           />
           <Link to="/category" state={{ username: username }}>
-            <button disabled={isUser() ? false : true}>log in</button>
+            <button disabled={isUser() && correctPassword() ? false : true}>
+              log in
+            </button>
           </Link>
         </div>
         <Link to="/join">
