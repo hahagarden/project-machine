@@ -1,11 +1,45 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { Link, useNavigate } from "react-router-dom";
+import { IUser, UserAtom } from "../atom";
+
+interface IJoinForm {
+  username: string;
+  name: string;
+  pw: string;
+  pwConfirm: string;
+}
 
 function Join() {
-  const { register } = useForm();
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<IJoinForm>();
+  const [joinUser, setJoinUser] = useRecoilState(UserAtom);
+  const onSubmit = (data: IJoinForm) => {
+    setJoinUser((prevUser) => [
+      { username: data.username, name: data.name, password: data.pw },
+      ...prevUser,
+    ]);
+    if (data.pwConfirm !== data.pw) {
+      setError(
+        "pwConfirm",
+        { message: "password are not the same." },
+        { shouldFocus: true }
+      );
+    } else {
+      alert(`welcome ${data.username}!`);
+      navigate("/login");
+    }
+  };
+  console.log(errors);
   return (
     <>
       <form
+        onSubmit={handleSubmit(onSubmit)}
         style={{
           display: "flex",
           flexDirection: "column",

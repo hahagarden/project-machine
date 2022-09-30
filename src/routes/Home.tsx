@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
 import Login from "./Login";
 import Join from "./Join";
+import { atom } from "recoil";
 
 const Header = styled.div``;
 
