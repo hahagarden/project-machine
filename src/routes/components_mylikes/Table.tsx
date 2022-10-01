@@ -43,7 +43,7 @@ const Table = () => {
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getFooterGroupProps()}>
-              {headerGroup.headers.map((column: any) => (
+              {headerGroup.headers.map((column) => (
                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render("Header")}
                 </th>
