@@ -35,10 +35,13 @@ const Table = () => {
     prepareRow,
     setGlobalFilter,
   } = useTable({ columns, data } as any, useGlobalFilter, useSortBy);
-
+  const onReset = () => {
+    setGlobalFilter("");
+  };
   return (
     <>
       <Search onSubmit={setGlobalFilter} />
+      <button onClick={onReset}>↺</button>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
