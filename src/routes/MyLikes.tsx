@@ -20,7 +20,7 @@ function MyLikes() {
         <hr />
       </div>
       <Routes>
-        <Route path="/song" element={<Song />} />
+        <Route path="/song/*" element={<Song />} />
         <Route path="/movie" element={<Movie />} />
       </Routes>
     </>
