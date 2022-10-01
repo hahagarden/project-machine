@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
-import { Link, useNavigate } from "react-router-dom";
-import { IUser, joinedUserAtom } from "../atom";
+import { useSetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
+import { joinedUserAtom } from "../atom";
 
 interface IJoinForm {
   username: string;
@@ -18,7 +18,7 @@ function Join() {
     setError,
     formState: { errors },
   } = useForm<IJoinForm>();
-  const [joinedUser, setJoinedUser] = useRecoilState(joinedUserAtom);
+  const setJoinedUser = useSetRecoilState(joinedUserAtom);
   const onSubmit = (data: IJoinForm) => {
     if (data.pwConfirm !== data.pw) {
       setError(

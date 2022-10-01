@@ -1,15 +1,16 @@
 import { useForm } from "react-hook-form";
-import { useRecoilValue } from "recoil";
-import { Routes, Route, Link } from "react-router-dom";
-import Join from "./Join";
-import { joinedUserAtom } from "../atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
+import { joinedUserAtom, loggedInUserAtom } from "../atom";
 
 interface ILoginForm {
   username: string;
   pw: string;
 }
 function Login() {
-  const loginUser = useRecoilValue(joinedUserAtom);
+  const navigate = useNavigate();
+  const joinedUser = useRecoilValue(joinedUserAtom);
+  const setLoggedInUser = useSetRecoilState(loggedInUserAtom);
   const {
     register,
     handleSubmit,
@@ -18,13 +19,18 @@ function Login() {
   } = useForm<ILoginForm>();
 
   const onSubmit = (data: ILoginForm) => {
-    const targetIndex = loginUser.findIndex(
+    const targetIndex = joinedUser.findIndex(
       (user) => user.username === data.username
     );
     if (targetIndex == -1)
       setError("username", { message: "username does not exist." });
-    else if (loginUser[targetIndex].password !== data.pw)
+    else if (joinedUser[targetIndex].password !== data.pw)
       setError("pw", { message: "password does not correct." });
+    else {
+      setLoggedInUser(joinedUser[targetIndex]);
+      alert(`Hello ${data.username}!`);
+      navigate("/");
+    }
   };
   console.log(errors);
   return (

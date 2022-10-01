@@ -23,3 +23,9 @@ export const joinedUserAtom = atom<IUser[]>({
   default: [],
   effects: [localStorageEffect("joinedUser")],
 });
+
+export const loggedInUserAtom = atom<IUser>({
+  key: "loggedInUser",
+  default: { username: "", name: "", password: "" },
+  effects: [localStorageEffect("loggedInUser")],
+});
