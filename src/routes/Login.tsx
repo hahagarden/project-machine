@@ -2,14 +2,14 @@ import { useForm } from "react-hook-form";
 import { useRecoilValue } from "recoil";
 import { Routes, Route, Link } from "react-router-dom";
 import Join from "./Join";
-import { UserAtom } from "../atom";
+import { joinedUserAtom } from "../atom";
 
 interface ILoginForm {
   username: string;
   pw: string;
 }
 function Login() {
-  const loginUser = useRecoilValue(UserAtom);
+  const loginUser = useRecoilValue(joinedUserAtom);
   const {
     register,
     handleSubmit,
