@@ -15,6 +15,7 @@
     "react-hook-form": "^7.36.1",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
+    "react-table": "^7.8.0",
     "recoil": "^0.7.5",
     "styled-components": "^5.3.5",
     "typescript": "^4.8.3",
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-table": "^7.7.12",
     "@types/recoil": "^0.0.9",
     "@types/styled-components": "^5.1.26"
   }
