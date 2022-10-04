@@ -1,9 +1,62 @@
 import { useMemo } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { useGlobalFilter, useSortBy, useTable } from "react-table";
 import { songsAtom } from "./atoms_mylikes";
+import styled from "styled-components";
 
-const columnData = [
+const Tr = styled.tr``;
+
+const Th = styled.th`
+  padding: 10px 20px;
+  border-bottom: 2px solid;
+`;
+
+const Td = styled.td`
+  text-align: center;
+  padding: 10px 20px;
+`;
+
+interface ITableHeader {
+  [key: string]: string;
+}
+
+function Table() {
+  const songs = useRecoilValue(songsAtom);
+
+  const tableHeader: ITableHeader = {
+    rank: "Rank",
+    title: "Title",
+    singer: "Singer",
+    genre: "Genre",
+  };
+
+  return (
+    <>
+      <table>
+        <Tr>
+          {Object.keys(tableHeader).map((header) => (
+            <Th>{tableHeader[header]}</Th>
+          ))}
+        </Tr>
+        {songs.map((song) => {
+          return (
+            <>
+              <Tr>
+                <Td>{song.rank}</Td>
+                <Td>{song.title}</Td>
+                <Td>{song.singer}</Td>
+                <Td>{song.genre}</Td>
+              </Tr>
+            </>
+          );
+        })}
+      </table>
+    </>
+  );
+}
+
+export default Table;
+/* const columnData = [
   { accessor: "rank", Header: "Rank" },
   { accessor: "title", Header: "Title" },
   { accessor: "singer", Header: "Singer" },
@@ -40,8 +93,10 @@ const Table = () => {
   };
   return (
     <>
-      <Search onSubmit={setGlobalFilter} />
-      <button onClick={onReset}>↺</button>
+      <div style={{ display: "flex" }}>
+        <Search onSubmit={setGlobalFilter} />
+        <button onClick={onReset}>↺</button>
+      </div>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -69,6 +124,4 @@ const Table = () => {
       </table>
     </>
   );
-};
-
-export default Table;
+}; */

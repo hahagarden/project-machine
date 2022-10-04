@@ -4,13 +4,13 @@ import Register from "./Register";
 import Table from "./Table";
 import { useState } from "react";
 import Modal from "./Modal";
-import { modalOnAtom } from "./atoms_mylikes";
+import { registerModalOnAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 
 const Button = styled.button``;
 
 function Song() {
-  const [modalOn, setModalOn] = useRecoilState(modalOnAtom);
+  const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const modalOpen = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -20,7 +20,7 @@ function Song() {
     <>
       <div>
         <Button onClick={modalOpen}>Register</Button>
-        {modalOn && <Modal />}
+        {modalOn && <Modal whichModal="register" />}
         <Button>Ranking</Button>
         <Button>Genre</Button>
         <Table />

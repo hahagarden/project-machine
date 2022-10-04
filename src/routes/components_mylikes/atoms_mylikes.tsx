@@ -13,7 +13,7 @@ const localStorageEffect =
   };
 
 export interface ISong {
-  rank?: number;
+  rank: number;
   title: string;
   singer: string;
   genre: string;
@@ -25,7 +25,7 @@ export const songsAtom = atom<ISong[]>({
   effects: [localStorageEffect("songs")],
 });
 
-export const modalOnAtom = atom({
+export const registerModalOnAtom = atom({
   key: "modalOn",
   default: false,
 });

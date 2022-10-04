@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { modalOnAtom } from "./atoms_mylikes";
+import { ISong, registerModalOnAtom } from "./atoms_mylikes";
 import Register from "./Register";
 import { useRecoilState } from "recoil";
 
@@ -28,8 +28,13 @@ const Title = styled.h1`
 
 const Container = styled.div``;
 
-function Modal() {
-  const [modalOn, setModalOn] = useRecoilState(modalOnAtom);
+interface IModalProps {
+  whichModal: string;
+  song?: ISong;
+}
+
+function Modal({ whichModal, song }: IModalProps) {
+  const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const modalClose = () => {
     setModalOn(false);
   };
@@ -40,7 +45,9 @@ function Modal() {
         <button onClick={modalClose}>X</button>
       </Header>
       <Container>
-        <Register />
+        {whichModal == "register" ? (
+          <Register />
+        ) : whichModal == "modify" ? null : null}
       </Container>
     </ModalWindow>
   );
