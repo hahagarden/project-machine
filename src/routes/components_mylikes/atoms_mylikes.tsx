@@ -19,8 +19,13 @@ export interface ISong {
   genre: string;
 }
 
-export const SongsAtom = atom<ISong[]>({
+export const songsAtom = atom<ISong[]>({
   key: "songs",
   default: [],
   effects: [localStorageEffect("songs")],
+});
+
+export const modalOnAtom = atom({
+  key: "modalOn",
+  default: false,
 });

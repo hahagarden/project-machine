@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
-import { Link } from "react-router-dom";
-import { SongsAtom } from "./atoms_mylikes";
+import styled from "styled-components";
+import { songsAtom } from "./atoms_mylikes";
 
 interface IForm {
   title: string;
@@ -9,8 +9,13 @@ interface IForm {
   genre: string;
 }
 
+const Form = styled.form`
+  display: "flex";
+  flex-direction: "column";
+`;
+
 function Register() {
-  const [songs, setSongs] = useRecoilState(SongsAtom);
+  const [songs, setSongs] = useRecoilState(songsAtom);
   const { register, handleSubmit } = useForm<IForm>();
   const onSubmit = (data: IForm) => {
     setSongs((prevSongs) => [
@@ -26,31 +31,42 @@ function Register() {
   };
   return (
     <>
-      <div>
-        <form onSubmit={handleSubmit(onSubmit)}>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <div>
           <label htmlFor="title">title</label>
           <input id="title" {...register("title", { required: true })}></input>
+        </div>
+        <div>
           <label htmlFor="singer">singer</label>
           <input
             id="singer"
             {...register("singer", { required: true })}
           ></input>
-          <span>genre</span>
+        </div>
+        <span>genre</span>
+        <div>
           <label id="JPOP">
-            <input type="radio" id="JPOP" value="JPOP" {...register("genre")} />
+            <input
+              type="radio"
+              id="JPOP"
+              value="JPOP"
+              {...register("genre", { required: true })}
+            />
             JPOP
           </label>
           <label id="KPOP">
-            <input type="radio" id="KPOP" value="KPOP" {...register("genre")} />
+            <input
+              type="radio"
+              id="KPOP"
+              value="KPOP"
+              {...register("genre", { required: true })}
+            />
             KPOP
           </label>
+        </div>
 
-          <button>Add</button>
-        </form>
-        <Link to="/mylikes/song">
-          <button>X</button>
-        </Link>
-      </div>
+        <button>Add</button>
+      </Form>
     </>
   );
 }

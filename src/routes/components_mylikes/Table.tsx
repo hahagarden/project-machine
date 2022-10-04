@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import { useGlobalFilter, useSortBy, useTable } from "react-table";
-import { SongsAtom } from "./atoms_mylikes";
+import { songsAtom } from "./atoms_mylikes";
 
 const columnData = [
   { accessor: "rank", Header: "Rank" },
@@ -24,7 +24,7 @@ const Search = ({ onSubmit }: any) => {
 };
 
 const Table = () => {
-  const songs = useRecoilValue(SongsAtom);
+  const songs = useRecoilValue(songsAtom);
   const columns = useMemo(() => columnData, []);
   const data = useMemo(() => songs, [songs]);
   const {
