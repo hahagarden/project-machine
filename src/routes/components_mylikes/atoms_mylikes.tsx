@@ -26,6 +26,11 @@ export const songsAtom = atom<ISong[]>({
 });
 
 export const registerModalOnAtom = atom({
-  key: "modalOn",
+  key: "registerModalOn",
+  default: false,
+});
+
+export const updateModalOnAtom = atom({
+  key: "updateModalOn",
   default: false,
 });

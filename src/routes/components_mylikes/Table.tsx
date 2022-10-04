@@ -1,8 +1,7 @@
-import { useMemo } from "react";
 import { useRecoilValue, useRecoilState } from "recoil";
-import { useGlobalFilter, useSortBy, useTable } from "react-table";
-import { songsAtom } from "./atoms_mylikes";
+import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
 import styled from "styled-components";
+import UpdateModal from "./UpdateModal";
 
 const Tr = styled.tr``;
 
@@ -22,7 +21,13 @@ interface ITableHeader {
 
 function Table() {
   const songs = useRecoilValue(songsAtom);
-
+  const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
+  const modalOpen = (
+    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
+  ) => {
+    console.log("Doubled", event);
+    setUpdateOn(true);
+  };
   const tableHeader: ITableHeader = {
     rank: "Rank",
     title: "Title",
@@ -33,23 +38,26 @@ function Table() {
   return (
     <>
       <table>
-        <Tr>
-          {Object.keys(tableHeader).map((header) => (
-            <Th>{tableHeader[header]}</Th>
-          ))}
-        </Tr>
-        {songs.map((song) => {
-          return (
-            <>
-              <Tr>
-                <Td>{song.rank}</Td>
-                <Td>{song.title}</Td>
-                <Td>{song.singer}</Td>
-                <Td>{song.genre}</Td>
-              </Tr>
-            </>
-          );
-        })}
+        <tbody>
+          <Tr>
+            {Object.keys(tableHeader).map((header) => (
+              <Th>{tableHeader[header]}</Th>
+            ))}
+          </Tr>
+          {songs.map((song) => {
+            return (
+              <>
+                <Tr onDoubleClick={modalOpen}>
+                  <Td>{song.rank}</Td>
+                  <Td>{song.title}</Td>
+                  <Td>{song.singer}</Td>
+                  <Td>{song.genre}</Td>
+                  {updateOn ? <UpdateModal song={song} /> : null}
+                </Tr>
+              </>
+            );
+          })}
+        </tbody>
       </table>
     </>
   );
