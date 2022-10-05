@@ -44,7 +44,6 @@ const Form = styled.form`
 `;
 
 function UpdateModal({ song }: IUpdateModalProps) {
-  console.log(song);
   const [songs, setSongs] = useRecoilState(songsAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({

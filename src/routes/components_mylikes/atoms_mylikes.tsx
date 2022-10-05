@@ -26,17 +26,6 @@ export const songsAtom = atom<ISong[]>({
   effects: [localStorageEffect("songs")],
 });
 
-export const songsSelector = selector<ISong[]>({
-  key: "songsSelector",
-  get: ({ get }) => {
-    const songs = get(songsAtom);
-    return songs;
-  },
-  set: ({ set }, newValue) => {
-    set(songsAtom, newValue);
-  },
-});
-
 export const registerModalOnAtom = atom({
   key: "registerModalOn",
   default: false,

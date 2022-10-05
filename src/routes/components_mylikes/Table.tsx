@@ -1,6 +1,6 @@
 import { useRecoilValue, useRecoilState } from "recoil";
-import { useState } from "react";
-import { updateModalOnAtom, songsAtom, songsSelector } from "./atoms_mylikes";
+import { useEffect } from "react";
+import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import {
@@ -30,17 +30,15 @@ interface ITableHeader {
 
 function Table() {
   const [songs, setSongs] = useRecoilState(songsAtom);
-  /* const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  setUpdateOn(() => {
-    return Array.from({ length: songs.length }, () => false);
-  });
+  const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
+  useEffect(() => {
+    setUpdateOn(() => Array.from({ length: songs.length }, () => false));
+  }, [songs]);
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
-    console.log("Doubled", event);
     const targetIndex = songs.findIndex(
-      (obj) =>
-        Number(obj.id) == Number(event.currentTarget.dataset.rbdDraggableId)
+      (obj) => obj.id == event.currentTarget.dataset.rbdDraggableId
     );
     setUpdateOn((current) => {
       const copyCurrent = [...current];
@@ -48,7 +46,7 @@ function Table() {
       return copyCurrent;
     });
   };
- */
+
   const tableHeader: ITableHeader = {
     rank: "Rank",
     title: "Title",
@@ -64,12 +62,10 @@ function Table() {
         const targetObj = copySongs[source.index];
         copySongs.splice(source.index, 1);
         copySongs.splice(destination.index, 0, targetObj);
-        console.log(copySongs);
         const newSongs = copySongs.map((song, index) => ({
           ...song,
           ["rank"]: index + 1,
         }));
-        console.log(newSongs);
         newSongs.sort((a, b) => a.rank - b.rank);
         return newSongs;
       });
@@ -94,7 +90,7 @@ function Table() {
                   <Draggable key={song.id} draggableId={song.id} index={index}>
                     {(provided) => (
                       <Tr
-                        /*  onDoubleClick={modalOpen} */
+                        onDoubleClick={modalOpen}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
@@ -103,9 +99,9 @@ function Table() {
                         <Td>{song.title}</Td>
                         <Td>{song.singer}</Td>
                         <Td>{song.genre}</Td>
-                        {/* {updateOn[Number(song.rank) - 1] ? (
-                            <UpdateModal song={song} />
-                          ) : null} */}
+                        {updateOn[song.rank - 1] ? (
+                          <UpdateModal song={song} />
+                        ) : null}
                       </Tr>
                     )}
                   </Draggable>
