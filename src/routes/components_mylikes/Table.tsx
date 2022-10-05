@@ -29,20 +29,31 @@ interface ITableHeader {
 function Table() {
   const songs = useRecoilValue(songsAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  const [targetSongId, setTargetSongId] = useState<string | undefined>("");
+  setUpdateOn(() => {
+    return Array.from({ length: songs.length }, () => false);
+  });
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
     console.log("Doubled", event);
-    setUpdateOn(true);
-    setTargetSongId(event.currentTarget.dataset.rbdDraggableId);
+    const targetIndex = songs.findIndex(
+      (obj) =>
+        Number(obj.id) == Number(event.currentTarget.dataset.rbdDraggableId)
+    );
+    setUpdateOn((current) => {
+      const copyCurrent = [...current];
+      copyCurrent.splice(targetIndex, 1, true);
+      return copyCurrent;
+    });
   };
+
   const tableHeader: ITableHeader = {
     rank: "Rank",
     title: "Title",
     singer: "Singer",
     genre: "Genre",
   };
+
   const onDragEnd = ({ destination, source }: DropResult) => {};
 
   return (
@@ -60,8 +71,8 @@ function Table() {
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   {songs.map((song, index) => (
                     <Draggable
-                      key={song.title}
-                      draggableId={song.title}
+                      key={song.id}
+                      draggableId={song.id + ""}
                       index={index}
                     >
                       {(provided) => (
@@ -71,12 +82,12 @@ function Table() {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <Td>{song.rank}</Td>
+                          <Td>{Number(song.rank)}</Td>
                           <Td>{song.title}</Td>
                           <Td>{song.singer}</Td>
                           <Td>{song.genre}</Td>
-                          {updateOn ? (
-                            <UpdateModal songId={targetSongId} />
+                          {updateOn[Number(song.rank) - 1] ? (
+                            <UpdateModal song={song} />
                           ) : null}
                         </Tr>
                       )}

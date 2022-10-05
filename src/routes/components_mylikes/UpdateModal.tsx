@@ -1,10 +1,10 @@
 import { ISong, songsAtom, updateModalOnAtom } from "./atoms_mylikes";
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 
 interface IUpdateModalProps {
-  songId: string | undefined;
+  song: ISong;
 }
 
 const ModalWindow = styled.div<{ updateOn: boolean }>`
@@ -43,49 +43,54 @@ const Form = styled.form`
   flex-direction: "column";
 `;
 
-function UpdateModal({ songId }: IUpdateModalProps) {
-  console.log(songId);
+function UpdateModal({ song }: IUpdateModalProps) {
+  console.log(song);
   const [songs, setSongs] = useRecoilState(songsAtom);
-  const song = songs.find((obj) => obj.title === songId);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({
     defaultValues: {
-      title: song?.title,
-      singer: song?.singer,
-      genre: song?.genre,
+      title: song.title,
+      singer: song.singer,
+      genre: song.genre,
     },
   });
   const onSubmit = (data: IForm) => {
     if (
-      song?.title == data.title &&
-      song?.singer == data.singer &&
-      song?.genre == data.genre
+      song.title == data.title &&
+      song.singer == data.singer &&
+      song.genre == data.genre
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const targetIndex = songs.findIndex((obj) => obj.title == song?.title);
+      const targetIndex = songs.findIndex(
+        (obj) => Number(obj.id) == Number(song.id)
+      );
       setSongs((prevSongs) => {
         const copySongs = [...prevSongs];
-        copySongs.splice(targetIndex, 1);
-        return [
-          {
-            rank: song?.rank || songs.length + 1,
-            title: data.title,
-            singer: data.singer,
-            genre: data.genre,
-          },
-          ...copySongs,
-        ];
+        const newSong = {
+          id: Number(song.id),
+          rank: Number(song.rank),
+          title: data.title,
+          singer: data.singer,
+          genre: data.genre,
+        };
+        copySongs.splice(targetIndex, 1, newSong);
+        return copySongs.sort((a, b) => Number(a.rank) - Number(b.rank));
       });
       console.log(data);
     }
   };
   const modalClose = () => {
-    setUpdateOn((current) => !current);
+    setUpdateOn((current) => {
+      const copyCurrent = [...current];
+      const currentIndex = copyCurrent.indexOf(true);
+      copyCurrent.splice(currentIndex, 1, false);
+      return copyCurrent;
+    });
   };
   return (
-    <ModalWindow updateOn={updateOn}>
+    <ModalWindow updateOn={updateOn[Number(song.rank) - 1]}>
       <Header>
         <Title>Update</Title>
         <button onClick={modalClose}>X</button>

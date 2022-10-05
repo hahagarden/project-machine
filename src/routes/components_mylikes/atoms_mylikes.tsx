@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 
 const localStorageEffect =
   (key: string) =>
@@ -13,6 +13,7 @@ const localStorageEffect =
   };
 
 export interface ISong {
+  id: number;
   rank: number;
   title: string;
   singer: string;
@@ -30,7 +31,7 @@ export const registerModalOnAtom = atom({
   default: false,
 });
 
-export const updateModalOnAtom = atom({
+export const updateModalOnAtom = atom<boolean[]>({
   key: "updateModalOn",
-  default: false,
+  default: [],
 });

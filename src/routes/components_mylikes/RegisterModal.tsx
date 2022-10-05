@@ -44,18 +44,22 @@ function Modal() {
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>();
   const onSubmit = (data: IForm) => {
-    setSongs((prevSongs) => [
-      {
-        rank: prevSongs.length + 1,
-        title: data.title,
-        singer: data.singer,
-        genre: data.genre,
-      },
-      ...prevSongs,
-    ]);
+    setSongs((prevSongs) => {
+      const newSongs = [
+        {
+          id: Date.now(),
+          rank: prevSongs.length + 1,
+          title: data.title,
+          singer: data.singer,
+          genre: data.genre,
+        },
+        ...prevSongs,
+      ];
+      return newSongs.sort((a, b) => Number(a.rank) - Number(b.rank));
+    });
   };
   const modalClose = () => {
-    setRegisterOn((current) => !current);
+    setRegisterOn(false);
   };
 
   return (
