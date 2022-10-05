@@ -63,20 +63,19 @@ function UpdateModal({ song }: IUpdateModalProps) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const targetIndex = songs.findIndex(
-        (obj) => Number(obj.id) == Number(song.id)
-      );
+      const targetIndex = songs.findIndex((obj) => obj.id == song.id);
       setSongs((prevSongs) => {
         const copySongs = [...prevSongs];
         const newSong = {
-          id: Number(song.id),
+          id: song.id,
           rank: Number(song.rank),
           title: data.title,
           singer: data.singer,
           genre: data.genre,
         };
         copySongs.splice(targetIndex, 1, newSong);
-        return copySongs.sort((a, b) => Number(a.rank) - Number(b.rank));
+        copySongs.sort((a, b) => Number(a.rank) - Number(b.rank));
+        return copySongs;
       });
       console.log(data);
     }

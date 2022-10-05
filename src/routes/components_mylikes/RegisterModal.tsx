@@ -47,7 +47,7 @@ function Modal() {
     setSongs((prevSongs) => {
       const newSongs = [
         {
-          id: Date.now(),
+          id: Date.now() + "",
           rank: prevSongs.length + 1,
           title: data.title,
           singer: data.singer,
@@ -55,7 +55,8 @@ function Modal() {
         },
         ...prevSongs,
       ];
-      return newSongs.sort((a, b) => Number(a.rank) - Number(b.rank));
+      newSongs.sort((a, b) => Number(a.rank) - Number(b.rank));
+      return newSongs;
     });
   };
   const modalClose = () => {

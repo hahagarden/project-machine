@@ -1,6 +1,6 @@
 import { useRecoilValue, useRecoilState } from "recoil";
 import { useState } from "react";
-import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
+import { updateModalOnAtom, songsAtom, songsSelector } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import {
@@ -22,13 +22,15 @@ const Td = styled.td`
   padding: 10px 20px;
 `;
 
+const Area = styled.div``;
+
 interface ITableHeader {
   [key: string]: string;
 }
 
 function Table() {
-  const songs = useRecoilValue(songsAtom);
-  const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
+  const [songs, setSongs] = useRecoilState(songsAtom);
+  /* const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   setUpdateOn(() => {
     return Array.from({ length: songs.length }, () => false);
   });
@@ -46,7 +48,7 @@ function Table() {
       return copyCurrent;
     });
   };
-
+ */
   const tableHeader: ITableHeader = {
     rank: "Rank",
     title: "Title",
@@ -54,49 +56,64 @@ function Table() {
     genre: "Genre",
   };
 
-  const onDragEnd = ({ destination, source }: DropResult) => {};
+  const onDragEnd = ({ destination, source }: DropResult) => {
+    if (!destination) return;
+    else {
+      setSongs((current) => {
+        const copySongs = [...current];
+        const targetObj = copySongs[source.index];
+        copySongs.splice(source.index, 1);
+        copySongs.splice(destination.index, 0, targetObj);
+        console.log(copySongs);
+        const newSongs = copySongs.map((song, index) => ({
+          ...song,
+          ["rank"]: index + 1,
+        }));
+        console.log(newSongs);
+        newSongs.sort((a, b) => a.rank - b.rank);
+        return newSongs;
+      });
+    }
+  };
 
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
         <table>
-          <tbody>
+          <thead>
             <Tr>
-              {Object.keys(tableHeader).map((header) => (
-                <Th>{tableHeader[header]}</Th>
+              {Object.keys(tableHeader).map((header, index) => (
+                <Th key={index}>{tableHeader[header]}</Th>
               ))}
             </Tr>
-            <Droppable droppableId={"table"}>
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
-                  {songs.map((song, index) => (
-                    <Draggable
-                      key={song.id}
-                      draggableId={song.id + ""}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <Tr
-                          onDoubleClick={modalOpen}
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                        >
-                          <Td>{Number(song.rank)}</Td>
-                          <Td>{song.title}</Td>
-                          <Td>{song.singer}</Td>
-                          <Td>{song.genre}</Td>
-                          {updateOn[Number(song.rank) - 1] ? (
+          </thead>
+          <Droppable droppableId={"table"}>
+            {(provided) => (
+              <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                {songs.map((song, index) => (
+                  <Draggable key={song.id} draggableId={song.id} index={index}>
+                    {(provided) => (
+                      <Tr
+                        /*  onDoubleClick={modalOpen} */
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <Td>{song.rank}</Td>
+                        <Td>{song.title}</Td>
+                        <Td>{song.singer}</Td>
+                        <Td>{song.genre}</Td>
+                        {/* {updateOn[Number(song.rank) - 1] ? (
                             <UpdateModal song={song} />
-                          ) : null}
-                        </Tr>
-                      )}
-                    </Draggable>
-                  ))}
-                </div>
-              )}
-            </Droppable>
-          </tbody>
+                          ) : null} */}
+                      </Tr>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </tbody>
+            )}
+          </Droppable>
         </table>
       </DragDropContext>
     </>
@@ -104,6 +121,7 @@ function Table() {
 }
 
 export default Table;
+
 /* const columnData = [
   { accessor: "rank", Header: "Rank" },
   { accessor: "title", Header: "Title" },
