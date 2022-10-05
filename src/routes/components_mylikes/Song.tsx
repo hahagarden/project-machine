@@ -1,8 +1,5 @@
 import styled from "styled-components";
-import { Routes, Route, Link } from "react-router-dom";
-import Register from "./Register";
 import Table from "./Table";
-import { useState } from "react";
 import RegisterModal from "./RegisterModal";
 import { registerModalOnAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";

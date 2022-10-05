@@ -1,7 +1,14 @@
 import { useRecoilValue, useRecoilState } from "recoil";
+import { useState } from "react";
 import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
+import {
+  DragDropContext,
+  DropResult,
+  Droppable,
+  Draggable,
+} from "react-beautiful-dnd";
 
 const Tr = styled.tr``;
 
@@ -22,11 +29,13 @@ interface ITableHeader {
 function Table() {
   const songs = useRecoilValue(songsAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
+  const [targetSongId, setTargetSongId] = useState<string | undefined>("");
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
     console.log("Doubled", event);
     setUpdateOn(true);
+    setTargetSongId(event.currentTarget.dataset.rbdDraggableId);
   };
   const tableHeader: ITableHeader = {
     rank: "Rank",
@@ -34,31 +43,51 @@ function Table() {
     singer: "Singer",
     genre: "Genre",
   };
+  const onDragEnd = ({ destination, source }: DropResult) => {};
 
   return (
     <>
-      <table>
-        <tbody>
-          <Tr>
-            {Object.keys(tableHeader).map((header) => (
-              <Th>{tableHeader[header]}</Th>
-            ))}
-          </Tr>
-          {songs.map((song) => {
-            return (
-              <>
-                <Tr onDoubleClick={modalOpen}>
-                  <Td>{song.rank}</Td>
-                  <Td>{song.title}</Td>
-                  <Td>{song.singer}</Td>
-                  <Td>{song.genre}</Td>
-                  {updateOn ? <UpdateModal song={song} /> : null}
-                </Tr>
-              </>
-            );
-          })}
-        </tbody>
-      </table>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <table>
+          <tbody>
+            <Tr>
+              {Object.keys(tableHeader).map((header) => (
+                <Th>{tableHeader[header]}</Th>
+              ))}
+            </Tr>
+            <Droppable droppableId={"table"}>
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {songs.map((song, index) => (
+                    <Draggable
+                      key={song.title}
+                      draggableId={song.title}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <Tr
+                          onDoubleClick={modalOpen}
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <Td>{song.rank}</Td>
+                          <Td>{song.title}</Td>
+                          <Td>{song.singer}</Td>
+                          <Td>{song.genre}</Td>
+                          {updateOn ? (
+                            <UpdateModal songId={targetSongId} />
+                          ) : null}
+                        </Tr>
+                      )}
+                    </Draggable>
+                  ))}
+                </div>
+              )}
+            </Droppable>
+          </tbody>
+        </table>
+      </DragDropContext>
     </>
   );
 }

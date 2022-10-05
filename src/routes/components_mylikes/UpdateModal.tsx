@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
 
 interface IUpdateModalProps {
-  song: ISong;
+  songId: string | undefined;
 }
 
 const ModalWindow = styled.div<{ updateOn: boolean }>`
@@ -43,33 +43,34 @@ const Form = styled.form`
   flex-direction: "column";
 `;
 
-function UpdateModal({ song }: IUpdateModalProps) {
-  console.log(song, "is rendered");
+function UpdateModal({ songId }: IUpdateModalProps) {
+  console.log(songId);
   const [songs, setSongs] = useRecoilState(songsAtom);
+  const song = songs.find((obj) => obj.title === songId);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({
     defaultValues: {
-      title: song.title,
-      singer: song.singer,
-      genre: song.genre,
+      title: song?.title,
+      singer: song?.singer,
+      genre: song?.genre,
     },
   });
   const onSubmit = (data: IForm) => {
     if (
-      song.title == data.title &&
-      song.singer == data.singer &&
-      song.genre == data.genre
+      song?.title == data.title &&
+      song?.singer == data.singer &&
+      song?.genre == data.genre
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const targetIndex = songs.findIndex((what) => what.rank == song.rank);
+      const targetIndex = songs.findIndex((obj) => obj.title == song?.title);
       setSongs((prevSongs) => {
         const copySongs = [...prevSongs];
         copySongs.splice(targetIndex, 1);
         return [
           {
-            rank: song.rank,
+            rank: song?.rank || songs.length + 1,
             title: data.title,
             singer: data.singer,
             genre: data.genre,
