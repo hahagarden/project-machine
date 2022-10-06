@@ -20,6 +20,7 @@ const Form = styled.form`
 `;
 
 const InputLine = styled.div`
+  position: relative;
   margin-top: 10px;
 `;
 
@@ -43,6 +44,15 @@ const Input = styled.input`
     border-bottom: 1px solid white;
     }
   }
+`;
+
+const Span = styled.span`
+  position: absolute;
+  left: 345px;
+  top: 10px;
+  width: 250px;
+  margin-left: 10px;
+  color: red;
 `;
 
 const Button = styled.button`
@@ -105,14 +115,20 @@ function Login() {
             id="username"
             placeholder="username"
           ></Input>
+          <Span>{errors?.username?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="pw">password</Label>
           <Input
-            {...register("pw", { required: true, minLength: 4 })}
+            {...register("pw", {
+              required: true,
+              minLength: { value: 4, message: "minimum length is 4" },
+              maxLength: { value: 10, message: "maximum length is 10" },
+            })}
             id="pw"
             placeholder="password"
           ></Input>
+          <Span>{errors?.pw?.message}</Span>
         </InputLine>
         <Button>Log in</Button>
       </Form>
