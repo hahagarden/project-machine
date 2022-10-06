@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../atom";
 import Login from "./Login";
 import Join from "./Join";
@@ -27,16 +27,15 @@ const Header = styled.div`
 `;
 
 const Title = styled.div`
-  width: 350px;
+  padding: 60px;
   background-color: #1e90ff;
   box-shadow: 0 0 25px 5px white, inset 0 0 15px 0px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
   margin: 20px;
-  padding: 60px;
+  text-align: center;
   color: white;
   font-size: 40px;
   font-weight: 600;
-  text-align: center;
 `;
 
 const Menu = styled.div`
@@ -54,6 +53,7 @@ const Button = styled.button`
   border: none;
   font-size: 20px;
   font-weight: 600;
+  color: white;
   a {
     display: block;
     width: 100%;
@@ -68,30 +68,39 @@ const Button = styled.button`
     a {
       color: #ff0063;
     }
+    color: #ff0063;
   }
 `;
 
 const Container = styled.div`
-  margin-top: 335px;
+  margin-top: 295px;
   width: 100vw;
 `;
 
 function Home() {
-  const nowUser = useRecoilValue(loggedInUserAtom);
+  const [nowUser, setNowUser] = useRecoilState(loggedInUserAtom);
   const isLoggedIn = nowUser.username !== "";
+  const logOut = () => {
+    if (window.confirm("Do you want to log out?"))
+      setNowUser(() => ({ username: "", name: "", password: "" }));
+  };
   return (
     <Wrapper>
       <Header>
         <Title>
-          {isLoggedIn ? `${nowUser.username}'s` : null} Project Machine
+          {isLoggedIn ? `${nowUser.username}'s ` : null} Project Machine
         </Title>
         <Menu>
           <Button>
             <Link to="/">Home</Link>
           </Button>
-          <Button>
-            <Link to="/login">Login</Link>
-          </Button>
+          {isLoggedIn ? (
+            <Button onClick={logOut}>Logout</Button>
+          ) : (
+            <Button>
+              <Link to="/login">Login</Link>
+            </Button>
+          )}
           <Button>
             <Link to="/join">Join </Link>
           </Button>
