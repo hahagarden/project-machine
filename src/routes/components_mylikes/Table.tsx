@@ -11,23 +11,28 @@ import {
 } from "react-beautiful-dnd";
 
 const TableArea = styled.table`
-  width: 100%;
+  width: 70%;
 `;
+
+const Tbody = styled.tbody``;
 
 const Tr = styled.tr`
   font-size: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 `;
 
 const Th = styled.th`
-  padding: 15px 60px;
+  padding: 15px 0;
   border-bottom: 2px solid rgba(0, 0, 0, 0.3);
   font-weight: 600;
 `;
 
 const Td = styled.td`
   text-align: center;
-  padding: 15px 60px;
+  padding: 15px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 `;
 
 const Area = styled.div``;
@@ -93,10 +98,10 @@ function Table() {
           </thead>
           <Droppable droppableId={"table"}>
             {(provided) => (
-              <tbody ref={provided.innerRef} {...provided.droppableProps}>
+              <Tbody ref={provided.innerRef} {...provided.droppableProps}>
                 {songs.map((song, index) => (
                   <Draggable key={song.id} draggableId={song.id} index={index}>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <Tr
                         onDoubleClick={modalOpen}
                         ref={provided.innerRef}
@@ -115,7 +120,7 @@ function Table() {
                   </Draggable>
                 ))}
                 {provided.placeholder}
-              </tbody>
+              </Tbody>
             )}
           </Droppable>
         </TableArea>
