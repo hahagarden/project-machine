@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import { joinedUserAtom } from "../atom";
 import styled from "styled-components";
@@ -20,6 +20,7 @@ const Form = styled.form`
 `;
 
 const InputLine = styled.div`
+  position: relative;
   margin-top: 10px;
 `;
 
@@ -47,6 +48,16 @@ const Input = styled.input`
     }
   }
 `;
+
+const Span = styled.span`
+  position: absolute;
+  left: 422px;
+  top: 10px;
+  width: 250px;
+  margin-left: 10px;
+  color: red;
+`;
+
 const Button = styled.button`
   background-color: transparent;
   border: 1px solid white;
@@ -76,12 +87,20 @@ function Join() {
     setError,
     formState: { errors },
   } = useForm<IJoinForm>();
-  const setJoinedUser = useSetRecoilState(joinedUserAtom);
+  const [joinedUser, setJoinedUser] = useRecoilState(joinedUserAtom);
   const onSubmit = (data: IJoinForm) => {
     if (data.pwConfirm !== data.pw) {
       setError(
         "pwConfirm",
-        { message: "password are not the same." },
+        { message: "password are not the same" },
+        { shouldFocus: true }
+      );
+    } else if (
+      joinedUser.findIndex((user) => user.username === data.username) !== -1
+    ) {
+      setError(
+        "username",
+        { message: "username already exist" },
         { shouldFocus: true }
       );
     } else {
@@ -101,39 +120,53 @@ function Join() {
           <Label htmlFor="username">username</Label>
           <Input
             {...register("username", {
-              required: true,
+              required: "*",
               pattern: {
-                value: /^[a-zA-z0-9]/,
+                value: /^[a-zA-z0-9]+$/,
                 message: "alphabet and number only",
               },
             })}
             id="username"
             placeholder="username"
           ></Input>
+          <Span>{errors?.username?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="name">name</Label>
           <Input
-            {...register("name", { required: true })}
+            {...register("name", {
+              required: "*",
+              pattern: {
+                value: /^[a-zA-z가-힣]+$/,
+                message: "English and Korean only",
+              },
+            })}
             id="name"
             placeholder="name"
           ></Input>
+          <Span>{errors?.name?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="pw">password</Label>
           <Input
-            {...register("pw", { required: true, minLength: 4 })}
+            {...register("pw", {
+              required: "*",
+              minLength: { value: 4, message: "minimum length is 4" },
+              maxLength: { value: 10, message: "maximum length is 10" },
+            })}
             id="pw"
             placeholder="password"
           ></Input>
+          <Span>{errors?.pw?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="pwConfirm">confirm password</Label>
           <Input
-            {...register("pwConfirm", { required: true, minLength: 4 })}
+            {...register("pwConfirm", { required: "*" })}
             id="pwConfirm"
             placeholder="confirm password"
           ></Input>
+          <Span>{errors?.pwConfirm?.message}</Span>
         </InputLine>
         <Button>Join</Button>
       </Form>
