@@ -26,7 +26,7 @@ const InputLine = styled.div`
 
 const Label = styled.label`
   display: inline-block;
-  width: 165px;
+  width: 180px;
   text-align: right;
   color: white;
   padding-right: 10px;
@@ -51,7 +51,7 @@ const Input = styled.input`
 
 const Span = styled.span`
   position: absolute;
-  left: 422px;
+  left: 429px;
   top: 10px;
   width: 250px;
   margin-left: 10px;
