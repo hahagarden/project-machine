@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #9980fa;
+  background-color: #abc9ff;
 `;
 
 const Header = styled.div`

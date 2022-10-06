@@ -45,7 +45,7 @@ const Menu = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: #ff6b81;
+  background-color: #ff9f29;
   box-shadow: 0 0 10px 3px white, inset 0 0 5px 0px rgba(0, 0, 0, 0.3);
   width: 100px;
   height: 45px;
@@ -66,13 +66,13 @@ const Button = styled.button`
   &:hover {
     box-shadow: 0 0 15px 7px white, inset 0 0 5px 0px rgba(0, 0, 0, 0.3);
     a {
-      color: yellow;
+      color: #ff0063;
     }
   }
 `;
 
 const Container = styled.div`
-  margin-top: 295px;
+  margin-top: 335px;
   width: 100vw;
 `;
 
