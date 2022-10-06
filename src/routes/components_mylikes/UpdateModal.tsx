@@ -8,9 +8,10 @@ interface IUpdateModalProps {
 }
 
 const ModalWindow = styled.div<{ updateOn: boolean }>`
-  background-color: pink;
-  border: 1px solid;
   display: ${(props) => (props.updateOn ? "flex" : "none")};
+  background-color: white;
+  border: 3px solid navy;
+  width: 500px;
   flex-direction: column;
   position: absolute;
   top: 50%;
@@ -23,14 +24,29 @@ const ModalWindow = styled.div<{ updateOn: boolean }>`
 
 const Header = styled.div`
   display: flex;
+  margin: 20px;
 `;
 
 const Title = styled.h1`
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
 `;
 
-const Container = styled.div``;
+const CloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: transparent;
+  border: none;
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 interface IForm {
   title: string;
@@ -39,8 +55,69 @@ interface IForm {
 }
 
 const Form = styled.form`
-  display: "flex";
-  flex-direction: "column";
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
+const InputLine = styled.div`
+  margin-top: 10px;
+  width: 400px;
+`;
+
+const Label = styled.label`
+  display: inline-block;
+  width: 90px;
+  text-align: right;
+  color: black;
+  padding-right: 10px;
+  font-size: 20px;
+`;
+
+const Input = styled.input`
+  height: 30px;
+  border: none;
+  border-bottom: 1px solid gray;
+  outline: none;
+  background-color: inherit;
+  color: black;
+  font-size: 20px;
+  transition: border-bottom 0.3s;
+  &:focus {
+    border-bottom: 1px solid black;
+    }
+  }
+`;
+
+const GenreInputLine = styled.div`
+  margin-top: 15px;
+  width: 400px;
+`;
+
+const GenreInput = styled.input`
+  border: none;
+  border-bottom: 1px solid gray;
+  outline: none;
+  background-color: inherit;
+  color: black;
+  font-size: 20px;
+`;
+
+const Button = styled.button`
+  background-color: transparent;
+  border: 1px solid black;
+  width: 350px;
+  height: 30px;
+  color: black;
+  font-size: 20px;
+  margin: 25px;
+  cursor: pointer;
+  transition: background-color, color 0.3s;
+  &:hover {
+    background-color: navy;
+    color: white;
+  }
 `;
 
 function UpdateModal({ song }: IUpdateModalProps) {
@@ -91,47 +168,47 @@ function UpdateModal({ song }: IUpdateModalProps) {
     <ModalWindow updateOn={updateOn[Number(song.rank) - 1]}>
       <Header>
         <Title>Update</Title>
-        <button onClick={modalClose}>X</button>
+        <CloseButton onClick={modalClose}>X</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="title">title</label>
-            <input
+          <InputLine>
+            <Label htmlFor="title">title</Label>
+            <Input
               id="title"
               {...register("title", { required: true })}
-            ></input>
-          </div>
-          <div>
-            <label htmlFor="singer">singer</label>
-            <input
+            ></Input>
+          </InputLine>
+          <InputLine>
+            <Label htmlFor="singer">singer</Label>
+            <Input
               id="singer"
               {...register("singer", { required: true })}
-            ></input>
-          </div>
-          <span>genre</span>
-          <div>
-            <label id="JPOP">
-              <input
+            ></Input>
+          </InputLine>
+          <GenreInputLine>
+            <Label>genre</Label>
+            <Label id="JPOP">
+              <GenreInput
                 type="radio"
                 id="JPOP"
                 value="JPOP"
                 {...register("genre", { required: true })}
               />
               JPOP
-            </label>
-            <label id="KPOP">
-              <input
+            </Label>
+            <Label id="KPOP">
+              <GenreInput
                 type="radio"
                 id="KPOP"
                 value="KPOP"
                 {...register("genre", { required: true })}
               />
               KPOP
-            </label>
-          </div>
+            </Label>
+          </GenreInputLine>
 
-          <button>UPDATE</button>
+          <Button>Update</Button>
         </Form>
       </Container>
     </ModalWindow>
