@@ -2,7 +2,63 @@ import { useForm } from "react-hook-form";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import { joinedUserAtom, loggedInUserAtom } from "../atom";
+import styled from "styled-components";
 
+const Wrapper = styled.div`
+  width: 100%;
+  background-color: navy;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+`;
+
+const InputLine = styled.div`
+  margin-top: 10px;
+`;
+
+const Label = styled.label`
+  color: white;
+  padding-right: 10px;
+  font-size: 20px;
+`;
+
+const Input = styled.input`
+  height: 30px;
+  border: none;
+  border-bottom: 1px solid gray;
+  outline: none;
+  background-color: inherit;
+  color: white;
+  font-size: 20px;
+  transition: border-bottom 0.3s;
+  &:focus {
+    color:#fff200;
+    border-bottom: 1px solid white;
+    }
+  }
+`;
+
+const Button = styled.button`
+  background-color: transparent;
+  border: 1px solid white;
+  width: 350px;
+  height: 30px;
+  color: white;
+  font-size: 20px;
+  margin: 20px;
+  transition: background-color, color 0.3s;
+  &:hover {
+    background-color: #f1f2f6;
+    color: navy;
+  }
+`;
 interface ILoginForm {
   username: string;
   pw: string;
@@ -34,19 +90,11 @@ function Login() {
   };
   console.log(errors);
   return (
-    <>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          backgroundColor: "navy",
-        }}
-      >
-        <div>
-          <label htmlFor="username">username</label>
-          <input
+    <Wrapper>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <InputLine>
+          <Label htmlFor="username">username</Label>
+          <Input
             {...register("username", {
               required: true,
               pattern: {
@@ -56,19 +104,19 @@ function Login() {
             })}
             id="username"
             placeholder="username"
-          ></input>
-        </div>
-        <div>
-          <label htmlFor="pw">password</label>
-          <input
+          ></Input>
+        </InputLine>
+        <InputLine>
+          <Label htmlFor="pw">password</Label>
+          <Input
             {...register("pw", { required: true, minLength: 4 })}
             id="pw"
             placeholder="password"
-          ></input>
-        </div>
-        <button>log in</button>
-      </form>
-    </>
+          ></Input>
+        </InputLine>
+        <Button>Log in</Button>
+      </Form>
+    </Wrapper>
   );
 }
 
