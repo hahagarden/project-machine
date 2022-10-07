@@ -153,6 +153,7 @@ function Modal() {
             <Input
               id="title"
               placeholder="title"
+              autoComplete="off"
               {...register("title", { required: true })}
             ></Input>
           </InputLine>
@@ -161,6 +162,7 @@ function Modal() {
             <Input
               id="singer"
               placeholder="singer"
+              autoComplete="off"
               {...register("singer", { required: true })}
             ></Input>
           </InputLine>

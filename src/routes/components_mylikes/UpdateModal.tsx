@@ -176,6 +176,7 @@ function UpdateModal({ song }: IUpdateModalProps) {
             <Label htmlFor="title">title</Label>
             <Input
               id="title"
+              autoComplete="off"
               {...register("title", { required: true })}
             ></Input>
           </InputLine>
@@ -183,6 +184,7 @@ function UpdateModal({ song }: IUpdateModalProps) {
             <Label htmlFor="singer">singer</Label>
             <Input
               id="singer"
+              autoComplete="off"
               {...register("singer", { required: true })}
             ></Input>
           </InputLine>
