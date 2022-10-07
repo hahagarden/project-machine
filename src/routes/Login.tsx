@@ -114,6 +114,7 @@ function Login() {
             })}
             id="username"
             placeholder="username"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.username?.message}</Span>
         </InputLine>
@@ -127,6 +128,7 @@ function Login() {
             })}
             id="pw"
             placeholder="password"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.pw?.message}</Span>
         </InputLine>

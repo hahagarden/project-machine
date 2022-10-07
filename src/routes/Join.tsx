@@ -128,6 +128,7 @@ function Join() {
             })}
             id="username"
             placeholder="username"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.username?.message}</Span>
         </InputLine>
@@ -143,6 +144,7 @@ function Join() {
             })}
             id="name"
             placeholder="name"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.name?.message}</Span>
         </InputLine>
@@ -156,6 +158,7 @@ function Join() {
             })}
             id="pw"
             placeholder="password"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.pw?.message}</Span>
         </InputLine>
@@ -165,6 +168,7 @@ function Join() {
             {...register("pwConfirm", { required: "*" })}
             id="pwConfirm"
             placeholder="confirm password"
+            autoComplete="off"
           ></Input>
           <Span>{errors?.pwConfirm?.message}</Span>
         </InputLine>
