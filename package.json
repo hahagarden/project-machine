@@ -10,6 +10,7 @@
     "@types/node": "^16.11.60",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "gh-pages": "^4.0.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
@@ -26,7 +27,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "eslintConfig": {
     "extends": [
@@ -52,5 +55,6 @@
     "@types/react-table": "^7.7.12",
     "@types/recoil": "^0.0.9",
     "@types/styled-components": "^5.1.26"
-  }
+  },
+  "homepage": "https://hahagarden.github.io/react-masterclass-garden"
 }
