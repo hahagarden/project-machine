@@ -19,6 +19,7 @@ const DraggableCard = styled.div<{ song: ISong }>`
   font-weight: 500;
   padding: 10px;
   margin: 10px;
+  transition: 0.2s;
   &:hover{
     background-color:#f0932b;
     color:white;

@@ -1,7 +1,16 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { registerModalOnAtom, songsAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState, useSetRecoilState } from "recoil";
+
+const animation_show = keyframes`
+  from{
+    opacity:0%;
+  }
+  to{
+    opacity:100%;
+  };
+`;
 
 const ModalWindow = styled.div<{ registerOn: boolean }>`
   display: ${(props) => (props.registerOn ? "flex" : "none")};
@@ -17,6 +26,7 @@ const ModalWindow = styled.div<{ registerOn: boolean }>`
   justify-content: center;
   align-items: center;
   z-index: 999;
+  animation: ${animation_show} 0.1s ease-out;
 `;
 
 const Header = styled.div`

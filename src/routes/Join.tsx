@@ -21,7 +21,7 @@ const Form = styled.form`
 
 const InputLine = styled.div`
   position: relative;
-  margin-top: 10px;
+  margin: 10px 0;
 `;
 
 const Label = styled.label`
@@ -34,6 +34,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
+width: 250px;
   height: 30px;
   border: none;
   border-bottom: 1px solid gray;
@@ -61,8 +62,9 @@ const Span = styled.span`
 const Button = styled.button`
   background-color: transparent;
   border: 1px solid white;
-  width: 350px;
-  height: 30px;
+  border-radius: 17px;
+  width: 300px;
+  height: 35px;
   color: white;
   font-size: 20px;
   margin: 20px;

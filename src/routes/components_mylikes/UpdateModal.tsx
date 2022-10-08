@@ -1,8 +1,16 @@
 import { ISong, songsAtom, updateModalOnAtom } from "./atoms_mylikes";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 
+const animation_show = keyframes`
+  from{
+    opacity:0%;
+  }
+  to{
+    opacity:100%;
+  };
+`;
 interface IUpdateModalProps {
   song: ISong;
 }
@@ -21,6 +29,7 @@ const ModalWindow = styled.div<{ updateOn: boolean }>`
   justify-content: center;
   align-items: center;
   z-index: 999;
+  animation: ${animation_show} 0.1s ease-out;
 `;
 
 const Header = styled.div`

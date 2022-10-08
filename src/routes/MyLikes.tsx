@@ -27,7 +27,7 @@ const Title = styled.div`
 `;
 
 const Menu = styled.div`
-  margin-bottom: 10px;
+  margin: 10px 0;
 `;
 
 const Button = styled.button`

@@ -1,12 +1,22 @@
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { songGenres } from "./atoms_mylikes";
 import Board from "./Board";
+
+const animation_boards = keyframes`
+  from{
+    opacity:0%;
+  }
+  to{
+    opacity:100%;
+  };
+`;
 
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
+  animation: ${animation_boards} 0.4s ease-out;
 `;
 
 const Boards = styled.div`

@@ -9,9 +9,20 @@ import {
   Droppable,
   Draggable,
 } from "react-beautiful-dnd";
+import { keyframes } from "styled-components";
+
+const animation = keyframes`
+  from{
+    opacity:0%;
+  }
+  to{
+    opacity:100%;
+  };
+`;
 
 const TableArea = styled.table`
   width: 70%;
+  animation: ${animation} 0.4s ease-out;
 `;
 
 const Tbody = styled.tbody``;

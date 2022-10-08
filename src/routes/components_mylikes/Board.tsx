@@ -1,8 +1,21 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { Droppable } from "react-beautiful-dnd";
 import { songsSelector } from "./atoms_mylikes";
 import Card from "./Card";
+
+const animation_board = keyframes`
+  0%{
+    opacity:0%;
+    transform:translateY(0%);
+  }
+40%{transform:translateY(-5%);}
+
+  100%{
+    opacity:100%;
+    transform:translateY(0%);
+  };
+`;
 
 interface BoardProps {
   boardId: string;
@@ -17,6 +30,7 @@ const Wrapper = styled.div`
   display: flex;
   border-radius: 50px;
   flex-direction: column;
+  animation: ${animation_board} 0.5s ease-out;
 `;
 
 const Title = styled.h1`
