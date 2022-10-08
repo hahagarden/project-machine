@@ -45,6 +45,9 @@ const Button = styled.button`
     text-align: center;
     line-height: 40px;
     text-decoration: underline;
+    &:hover {
+      color: #ff0063;
+    }
   }
 `;
 
@@ -56,7 +59,7 @@ function MyLikes() {
           <Title>My Likes</Title>
           <Menu>
             <Button>
-              <Link to="/mylikes/song">Song </Link>
+              <Link to="/mylikes/song/table">Song </Link>
             </Button>
             <Button>
               <Link to="/mylikes/movie">Movie</Link>
@@ -66,7 +69,7 @@ function MyLikes() {
         <Routes>
           <Route path="/song/*" element={<Song />} />
           <Route path="/movie" element={<Movie />} />
-        </Routes>{" "}
+        </Routes>
       </Wrapper>
     </>
   );
