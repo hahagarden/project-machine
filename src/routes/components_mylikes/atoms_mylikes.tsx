@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
 
 const localStorageEffect =
   (key: string) =>
@@ -12,6 +12,10 @@ const localStorageEffect =
     });
   };
 
+export enum songGenres {
+  "JPOP" = "JPOP",
+  "KPOP" = "KPOP",
+}
 export interface ISong {
   id: string;
   rank: number;
@@ -24,6 +28,17 @@ export const songsAtom = atom<ISong[]>({
   key: "songs",
   default: [],
   effects: [localStorageEffect("songs")],
+});
+
+export const songsSelector = selectorFamily({
+  key: "songsSelector",
+  get:
+    (genre) =>
+    ({ get }) => {
+      const songs = get(songsAtom);
+      const genreSongs = songs.filter((song) => song.genre == genre);
+      return genreSongs;
+    },
 });
 
 export const registerModalOnAtom = atom({
