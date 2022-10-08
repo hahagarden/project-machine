@@ -37,6 +37,7 @@ const Button = styled.button`
   margin: 0 20px;
   border: none;
   font-size: 20px;
+
   a {
     color: white;
     display: block;
@@ -45,6 +46,7 @@ const Button = styled.button`
     text-align: center;
     line-height: 40px;
     text-decoration: underline;
+    transition: 0.2s;
     &:hover {
       color: #ff0063;
     }

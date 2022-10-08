@@ -52,7 +52,6 @@ const Button = styled.button`
   border-radius: 20px;
   border: none;
   font-size: 20px;
-  font-weight: 600;
   color: white;
   a {
     display: block;
@@ -61,8 +60,9 @@ const Button = styled.button`
     text-align: center;
     line-height: 45px;
     color: white;
+    font-weight: 600;
   }
-  transition: a 0.3s;
+  transition: 0.3s;
   &:hover {
     box-shadow: 0 0 15px 7px white, inset 0 0 5px 0px rgba(0, 0, 0, 0.3);
     a {

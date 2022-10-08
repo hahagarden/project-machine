@@ -36,6 +36,8 @@ const Td = styled.td`
   padding: 15px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
   white-space: nowrap;
+  font-size: 18px;
+  font-weight: 400;
 `;
 
 const DeleteTd = styled.td`
@@ -152,7 +154,7 @@ function Table() {
                           </td>
                         ) : null}
                         <DeleteTd onClick={(e) => onDelete(song.rank)}>
-                          <DeleteButton>X</DeleteButton>
+                          <DeleteButton>×</DeleteButton>
                         </DeleteTd>
                       </Tr>
                     )}

@@ -20,8 +20,8 @@ const DraggableCard = styled.div<{ song: ISong }>`
   padding: 10px;
   margin: 10px;
   &:hover{
-    background-color:#F8EFBA;
-
+    background-color:#f0932b;
+    color:white;
   }
   }
 `;

@@ -6,7 +6,8 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 const ModalWindow = styled.div<{ registerOn: boolean }>`
   display: ${(props) => (props.registerOn ? "flex" : "none")};
   background-color: white;
-  border: 3px solid navy;
+  border: 4px solid navy;
+  border-radius: 15px;
   width: 500px;
   flex-direction: column;
   position: absolute;
@@ -20,7 +21,7 @@ const ModalWindow = styled.div<{ registerOn: boolean }>`
 
 const Header = styled.div`
   display: flex;
-  margin: 20px;
+  margin: 25px;
 `;
 
 const Title = styled.h1`
@@ -34,9 +35,13 @@ const CloseButton = styled.button`
   right: 20px;
   background-color: transparent;
   border: none;
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.5);
+  font-size: 22px;
+  color: rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  transition: 0.2s;
+  &:hover {
+    color: rgba(0, 0, 0, 0.7);
+  }
 `;
 
 const Container = styled.div`
@@ -51,6 +56,7 @@ interface IForm {
 }
 
 const Form = styled.form`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,13 +64,21 @@ const Form = styled.form`
 `;
 
 const InputLine = styled.div`
+  position: relative;
+  left: -10px;
   margin-top: 10px;
   width: 400px;
+  display: flex;
+  justify-content: center;
 `;
 
 const Label = styled.label`
+  position: relative;
+  top: 7px;
+  left: -1px;
   display: inline-block;
-  width: 90px;
+  width: 85px;
+  height: 40px;
   text-align: right;
   color: black;
   padding-right: 10px;
@@ -72,7 +86,8 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  height: 30px;
+  width:250px;
+  height: 35px;
   border: none;
   border-bottom: 1px solid gray;
   outline: none;
@@ -87,8 +102,21 @@ const Input = styled.input`
 `;
 
 const GenreInputLine = styled.div`
+  position: absolute;
+  left: -50px;
+  top: 95px;
   margin-top: 15px;
   width: 400px;
+  display: flex;
+  justify-content: center;
+  label {
+    &:nth-child(n+2):nth-child(-n+3) {
+      margin-top:3px;
+      transform: translateX(-5px);
+    }
+  }
+
+  }
 `;
 
 const GenreInput = styled.input`
@@ -103,11 +131,13 @@ const GenreInput = styled.input`
 const Button = styled.button`
   background-color: transparent;
   border: 1px solid black;
-  width: 350px;
-  height: 30px;
+  border-radius: 15px;
+  width: 300px;
+  height: 35px;
   color: black;
   font-size: 20px;
   margin: 25px;
+  margin-top: 80px;
   cursor: pointer;
   transition: background-color, color 0.3s;
   &:hover {
@@ -144,7 +174,7 @@ function Modal() {
     <ModalWindow registerOn={registerOn}>
       <Header>
         <Title>Register</Title>
-        <CloseButton onClick={modalClose}>X</CloseButton>
+        <CloseButton onClick={modalClose}>×</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>

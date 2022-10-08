@@ -18,14 +18,17 @@ const Menu = styled.div``;
 
 const Button = styled.button`
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
   background-color: transparent;
   text-decoration: underline;
   padding: 10px 30px;
   margin-bottom: 20px;
   border: none;
   cursor: pointer;
+
+  transition: 0.2s;
   a {
+    transition: 0.2s;
     font-weight: 600;
   }
   &:hover {
