@@ -17,9 +17,10 @@ const TableArea = styled.table`
 const Tbody = styled.tbody``;
 
 const Tr = styled.tr`
+  position: relative;
   font-size: 20px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 0.7fr 2fr 1fr 0.7fr;
 `;
 
 const Th = styled.th`
@@ -29,10 +30,31 @@ const Th = styled.th`
 `;
 
 const Td = styled.td`
+  text-overflow: ellipsis;
+  overflow: hidden;
   text-align: center;
   padding: 15px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
   white-space: nowrap;
+`;
+
+const DeleteTd = styled.td`
+  position: absolute;
+  right: -40px;
+  top: 10px;
+`;
+const DeleteButton = styled.button`
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  opacity: 0.2;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const Area = styled.div``;
@@ -50,6 +72,7 @@ function Table() {
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
+    console.log(event);
     const targetIndex = songs.findIndex(
       (obj) => obj.id == event.currentTarget.dataset.rbdDraggableId
     );
@@ -84,6 +107,17 @@ function Table() {
       });
     }
   };
+  const onDelete = (rank: number) => {
+    setSongs((current) => {
+      const copySongs = [...current];
+      copySongs.splice(rank - 1, 1);
+      const newSongs = copySongs.map((song, index) => ({
+        ...song,
+        ["rank"]: index + 1,
+      }));
+      return newSongs;
+    });
+  };
 
   return (
     <>
@@ -113,8 +147,13 @@ function Table() {
                         <Td>{song.singer}</Td>
                         <Td>{song.genre}</Td>
                         {updateOn[song.rank - 1] ? (
-                          <UpdateModal song={song} />
+                          <td>
+                            <UpdateModal song={song} />
+                          </td>
                         ) : null}
+                        <DeleteTd onClick={(e) => onDelete(song.rank)}>
+                          <DeleteButton>X</DeleteButton>
+                        </DeleteTd>
                       </Tr>
                     )}
                   </Draggable>
