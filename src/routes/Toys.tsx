@@ -7,11 +7,12 @@ const Container = styled.div`
 `;
 
 const Shelf = styled.div`
-  display: flex;
-  justify-content: space-around;
-  padding: 20px;
-  margin-top: 50px;
-  border-bottom: 4px solid white;
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    margin-top: 50px;
+    border-bottom: 4px solid white;
+  }
 `;
 
 const Area = styled.div`

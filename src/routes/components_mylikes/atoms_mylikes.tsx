@@ -24,6 +24,12 @@ export interface ISong {
   genre: string;
 }
 
+export const headerAtom = atom({
+  key: "header",
+  default: false,
+  effects: [localStorageEffect("header")],
+});
+
 export const songsAtom = atom<ISong[]>({
   key: "songs",
   default: [],
