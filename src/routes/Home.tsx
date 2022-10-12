@@ -1,11 +1,14 @@
 import styled from "styled-components";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../atom";
 import Login from "./Login";
 import Join from "./Join";
 import MyLikes from "./MyLikes";
 import Toys from "./Toys";
+import { authService } from "../fbase";
+import { useEffect, useState } from "react";
+import { signOut } from "firebase/auth";
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -53,6 +56,7 @@ const Button = styled.button`
   border: none;
   font-size: 20px;
   color: white;
+  cursor: pointer;
   a {
     display: block;
     width: 100%;
@@ -78,43 +82,63 @@ const Container = styled.div`
 `;
 
 function Home() {
-  const [nowUser, setNowUser] = useRecoilState(loggedInUserAtom);
-  const isLoggedIn = nowUser.username !== "";
+  const [init, setInit] = useState(false);
+  /*   const [nowUser, setNowUser] = useRecoilState(loggedInUserAtom); */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const logOut = () => {
     if (window.confirm("Do you want to log out?"))
-      setNowUser(() => ({ username: "", name: "", password: "" }));
+      /* setNowUser(() => ({ email: "", name: "", password: "" })); */
+      signOut(authService)
+        .then(() => alert("logged out"))
+        .catch();
   };
+  useEffect(
+    authService.onAuthStateChanged((user) => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else setIsLoggedIn(false);
+      setInit(true);
+    }),
+    []
+  );
   return (
-    <Wrapper>
-      <Header>
-        <Title>
-          {isLoggedIn ? `${nowUser.username}'s ` : null} Project Machine
-        </Title>
-        <Menu>
-          <Button>
-            <Link to="/">Home</Link>
-          </Button>
-          {isLoggedIn ? (
-            <Button onClick={logOut}>Logout</Button>
-          ) : (
-            <Button>
-              <Link to="/login">Login</Link>
-            </Button>
-          )}
-          <Button>
-            <Link to="/join">Join </Link>
-          </Button>
-        </Menu>
-      </Header>
-      <Container>
-        <Routes>
-          <Route path="/" element={<Toys />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/join" element={<Join />} />
-          <Route path="/mylikes/*" element={<MyLikes />} />
-        </Routes>
-      </Container>
-    </Wrapper>
+    <>
+      {init ? (
+        <Wrapper>
+          <Header>
+            <Title>
+              {/*  {isLoggedIn ? `${nowUser.email}'s ` : null} */} Project
+              Machine
+            </Title>
+            <Menu>
+              <Button>
+                <Link to="/">Home</Link>
+              </Button>
+              {isLoggedIn ? (
+                <Button onClick={logOut}>Logout</Button>
+              ) : (
+                <Button>
+                  <Link to="/login">Login</Link>
+                </Button>
+              )}
+              <Button>
+                <Link to="/join">Join </Link>
+              </Button>
+            </Menu>
+          </Header>
+          <Container>
+            <Routes>
+              <Route path="/" element={<Toys />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/join" element={<Join />} />
+              <Route path="/mylikes/*" element={<MyLikes />} />
+            </Routes>
+          </Container>
+        </Wrapper>
+      ) : (
+        "Initializing..."
+      )}
+    </>
   );
 }
 

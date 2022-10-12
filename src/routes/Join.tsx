@@ -3,6 +3,9 @@ import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import { joinedUserAtom } from "../atom";
 import styled from "styled-components";
+import { authService } from "../fbase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { async } from "@firebase/util";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -75,64 +78,72 @@ const Button = styled.button`
   }
 `;
 interface IJoinForm {
-  username: string;
+  email: string;
   name: string;
   pw: string;
   pwConfirm: string;
 }
 
 function Join() {
-  const navigate = useNavigate();
+  const navigator = useNavigate();
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<IJoinForm>();
-  const [joinedUser, setJoinedUser] = useRecoilState(joinedUserAtom);
+  /*   const [joinedUser, setJoinedUser] = useRecoilState(joinedUserAtom); */
   const onSubmit = (data: IJoinForm) => {
-    if (data.pwConfirm !== data.pw) {
+    /*   if (data.pwConfirm !== data.pw) {
       setError(
         "pwConfirm",
         { message: "password are not the same" },
         { shouldFocus: true }
       );
     } else if (
-      joinedUser.findIndex((user) => user.username === data.username) !== -1
+      joinedUser.findIndex((user) => user.email === data.email) !== -1
     ) {
       setError(
-        "username",
+        "email",
         { message: "username already exist" },
         { shouldFocus: true }
       );
     } else {
       setJoinedUser((prevUser) => [
-        { username: data.username, name: data.name, password: data.pw },
+        { email: data.email, name: data.name, password: data.pw },
         ...prevUser,
-      ]);
-      alert(`welcome ${data.username}!`);
-      navigate("/login");
-    }
+      ]); */
+    createUserWithEmailAndPassword(authService, data.email, data.pw)
+      .then((user) => {
+        alert(`welcome ${data.email}!`);
+        navigator("/login");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorMessage);
+      });
   };
+
   console.log(errors);
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputLine>
-          <Label htmlFor="username">username</Label>
+          <Label htmlFor="email">email</Label>
           <Input
-            {...register("username", {
+            {...register("email", {
               required: "*",
               pattern: {
-                value: /^[a-zA-z0-9]+$/,
-                message: "alphabet and number only",
+                value: /^[a-zA-z0-9@.]+$/,
+                message: "email with alphabet and number only",
               },
             })}
-            id="username"
-            placeholder="username"
+            id="email"
+            placeholder="email"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.username?.message}</Span>
+          <Span>{errors?.email?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="name">name</Label>
@@ -155,8 +166,8 @@ function Join() {
           <Input
             {...register("pw", {
               required: "*",
-              minLength: { value: 4, message: "minimum length is 4" },
-              maxLength: { value: 10, message: "maximum length is 10" },
+              minLength: { value: 6, message: "minimum length is 6" },
+              maxLength: { value: 12, message: "maximum length is 12" },
             })}
             id="pw"
             placeholder="password"

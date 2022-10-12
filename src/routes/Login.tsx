@@ -3,6 +3,8 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import { joinedUserAtom, loggedInUserAtom } from "../atom";
 import styled from "styled-components";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { authService } from "../fbase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -72,13 +74,13 @@ const Button = styled.button`
   }
 `;
 interface ILoginForm {
-  username: string;
+  email: string;
   pw: string;
 }
 function Login() {
-  const navigate = useNavigate();
-  const joinedUser = useRecoilValue(joinedUserAtom);
-  const setLoggedInUser = useSetRecoilState(loggedInUserAtom);
+  const navigator = useNavigate();
+  /*   const joinedUser = useRecoilValue(joinedUserAtom);
+  const setLoggedInUser = useSetRecoilState(loggedInUserAtom); */
   const {
     register,
     handleSubmit,
@@ -87,38 +89,45 @@ function Login() {
   } = useForm<ILoginForm>();
 
   const onSubmit = (data: ILoginForm) => {
-    const targetIndex = joinedUser.findIndex(
-      (user) => user.username === data.username
+    /*     const targetIndex = joinedUser.findIndex(
+      (user) => user.email === data.email
     );
     if (targetIndex == -1)
-      setError("username", { message: "username does not exist." });
+      setError("email", { message: "email does not exist." });
     else if (joinedUser[targetIndex].password !== data.pw)
       setError("pw", { message: "password does not correct." });
     else {
-      setLoggedInUser(joinedUser[targetIndex]);
-      alert(`Hello ${data.username}!`);
-      navigate("/");
-    }
+      setLoggedInUser(joinedUser[targetIndex]); */
+    signInWithEmailAndPassword(authService, data.email, data.pw)
+      .then((user) => {
+        alert(`Hello ${data.email}!`);
+        navigator("/");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorMessage);
+      });
   };
   console.log(errors);
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputLine>
-          <Label htmlFor="username">username</Label>
+          <Label htmlFor="email">email</Label>
           <Input
-            {...register("username", {
+            {...register("email", {
               required: true,
               pattern: {
-                value: /^[a-zA-z0-9]/,
-                message: "alphabet and number only",
+                value: /^[a-zA-z0-9@.]/,
+                message: "email with alphabet and number only",
               },
             })}
-            id="username"
-            placeholder="username"
+            id="email"
+            placeholder="email"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.username?.message}</Span>
+          <Span>{errors?.email?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="pw">password</Label>
