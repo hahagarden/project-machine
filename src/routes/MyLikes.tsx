@@ -2,6 +2,10 @@ import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
 import Song from "./components_mylikes/Song";
 import Movie from "./components_mylikes/Movie";
+import { User } from "firebase/auth";
+interface MyLikesProps {
+  loggedInUser: User | null;
+}
 
 const Wrapper = styled.div`
   display: flex;
@@ -53,7 +57,7 @@ const Button = styled.button`
   }
 `;
 
-function MyLikes() {
+function MyLikes({ loggedInUser }: MyLikesProps) {
   return (
     <>
       <Wrapper>
@@ -69,7 +73,10 @@ function MyLikes() {
           </Menu>
         </Header>
         <Routes>
-          <Route path="/song/*" element={<Song />} />
+          <Route
+            path="/song/*"
+            element={<Song loggedInUser={loggedInUser} />}
+          />
           <Route path="/movie" element={<Movie />} />
         </Routes>
       </Wrapper>

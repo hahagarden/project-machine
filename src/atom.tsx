@@ -13,7 +13,7 @@ const localStorageEffect =
   };
 
 export interface IUser {
-  email: string;
+  username: string;
   name: string;
   password: string;
 }
@@ -26,6 +26,6 @@ export const joinedUserAtom = atom<IUser[]>({
 
 export const loggedInUserAtom = atom<IUser>({
   key: "loggedInUser",
-  default: { email: "", name: "", password: "" },
+  default: { username: "", name: "", password: "" },
   effects: [localStorageEffect("loggedInUser")],
 });

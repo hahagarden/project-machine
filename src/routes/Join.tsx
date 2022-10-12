@@ -1,11 +1,8 @@
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
-import { joinedUserAtom } from "../atom";
 import styled from "styled-components";
 import { authService } from "../fbase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { async } from "@firebase/util";
 
 const Wrapper = styled.div`
   width: 100%;

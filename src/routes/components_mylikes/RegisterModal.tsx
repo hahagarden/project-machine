@@ -2,6 +2,9 @@ import styled, { keyframes } from "styled-components";
 import { registerModalOnAtom, songsAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState, useSetRecoilState } from "recoil";
+import { User } from "firebase/auth";
+import { dbService } from "../../fbase";
+import { collection, addDoc } from "firebase/firestore";
 
 const animation_show = keyframes`
   from{
@@ -155,27 +158,41 @@ const Button = styled.button`
     color: white;
   }
 `;
+export interface InterfaceSong {
+  createdAt: number;
+  creatorId: string;
+  genre: string;
+  rank: number;
+  singer: string;
+  title: string;
+}
 
-function Modal() {
+interface ModalProps {
+  loggedInUser: User | null;
+  songs: InterfaceSong[];
+}
+
+function Modal({ loggedInUser, songs }: ModalProps) {
   const setSongs = useSetRecoilState(songsAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
-  const { register, handleSubmit } = useForm<IForm>();
-  const onSubmit = (data: IForm) => {
-    setSongs((prevSongs) => {
-      const newSongs = [
-        {
-          id: Date.now() + "",
-          rank: prevSongs.length + 1,
-          title: data.title,
-          singer: data.singer,
-          genre: data.genre,
-        },
-        ...prevSongs,
-      ];
-      newSongs.sort((a, b) => Number(a.rank) - Number(b.rank));
-      return newSongs;
-    });
+  const { register, handleSubmit, reset } = useForm<IForm>();
+  const onSubmit = async (data: IForm) => {
+    const newSong = {
+      rank: songs.length + 1,
+      title: data.title,
+      singer: data.singer,
+      genre: data.genre,
+      creatorId: loggedInUser?.uid,
+      createdAt: Date.now(),
+    };
+    try {
+      const addSong = await addDoc(collection(dbService, "songs"), newSong);
+    } catch (e) {
+      console.error("Error adding document", e);
+    }
+    reset({ title: "", singer: "", genre: "" });
   };
+
   const modalClose = () => {
     setRegisterOn(false);
   };

@@ -1,7 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
-import { joinedUserAtom, loggedInUserAtom } from "../atom";
 import styled from "styled-components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { authService } from "../fbase";
