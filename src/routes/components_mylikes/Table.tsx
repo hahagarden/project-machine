@@ -115,7 +115,7 @@ function Table() {
       ...song,
       ["rank"]: index + 1,
     }));
-    /*     setSongs(newSongs); //for re-rendering but onSnapshot */
+    setSongs(newSongs); //for re-rendering but onSnapshot
     newSongs.map(async (song) => {
       const updatingSong = doc(dbService, "songs", song.id);
       await updateDoc(updatingSong, { rank: song.rank });

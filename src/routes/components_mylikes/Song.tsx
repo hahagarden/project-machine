@@ -12,6 +12,7 @@ import {
   collection,
   where,
   orderBy,
+  getDocs,
 } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect, useState } from "react";
@@ -65,14 +66,16 @@ function Song({ loggedInUser }: SongProps) {
       collection(dbService, "songs"),
       where("creatorId", "==", loggedInUser?.uid)
     );
-    onSnapshot(q, (querySnapshot) => {
+    const getDB = async () => {
+      const querySnapshot = await getDocs(q);
       const songsDB = [] as InterfaceSong[];
       querySnapshot.forEach((doc) => {
         songsDB.push({ ...(doc.data() as InterfaceSong), id: doc.id });
       });
       songsDB.sort((a, b) => a.rank - b.rank);
       setSongs(songsDB);
-    });
+    };
+    getDB();
     console.log("useEffect&snapshot rendered.");
   }, []);
 
