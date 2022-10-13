@@ -1,6 +1,10 @@
 import { useRecoilState } from "recoil";
 import React, { useEffect, useState } from "react";
-import { updateModalOnAtom, songsFireSelector } from "./atoms_mylikes";
+import {
+  updateModalOnAtom,
+  songsFireSelector,
+  InterfaceSong,
+} from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import {
@@ -10,7 +14,7 @@ import {
   Draggable,
 } from "react-beautiful-dnd";
 import { keyframes } from "styled-components";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 
 const animation = keyframes`
@@ -80,18 +84,10 @@ interface ITableHeader {
 
 function Table() {
   const [songs, setSongs] = useRecoilState(songsFireSelector);
-  const [changingRanking, setChangingRanking] = useState(false);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  useEffect(() => {
+  /*   useEffect(() => {
     setUpdateOn(() => Array.from({ length: songs.length }, () => false));
-  }, [songs]);
-
-  useEffect(() => {
-    songs.map(async (song) => {
-      const updatingSong = doc(dbService, "songs", song.id);
-      await updateDoc(updatingSong, { rank: song.rank });
-    });
-  }, [changingRanking]);
+  }, [songs]); */
 
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
@@ -114,26 +110,33 @@ function Table() {
     genre: "Genre",
   };
 
-  const onDragEnd = ({ destination, source }: DropResult) => {
-    if (!destination) return;
-    else {
-      setChangingRanking((current) => !current);
-      setSongs((current) => {
-        const copySongs = [...current];
-        const targetObj = copySongs[source.index];
-        copySongs.splice(source.index, 1);
-        copySongs.splice(destination.index, 0, targetObj);
-        const newSongs = copySongs.map((song, index) => ({
-          ...song,
-          ["rank"]: index + 1,
-        }));
-        return newSongs;
-      });
-    }
+  const reRankNewSongs = (prevSongs: InterfaceSong[]) => {
+    const newSongs = prevSongs.map((song, index) => ({
+      ...song,
+      ["rank"]: index + 1,
+    }));
+    /*     setSongs(newSongs); //for re-rendering but onSnapshot */
+    newSongs.map(async (song) => {
+      const updatingSong = doc(dbService, "songs", song.id);
+      await updateDoc(updatingSong, { rank: song.rank });
+    }); //update firestore
   };
 
-  const onDelete = (rank: number) => {
-    setSongs((current) => {
+  const onDragEnd = ({ destination, source }: DropResult) => {
+    if (!destination) return;
+    const copySongs = songs.slice();
+    const targetObj = copySongs[source.index];
+    copySongs.splice(source.index, 1);
+    copySongs.splice(destination.index, 0, targetObj);
+    reRankNewSongs(copySongs);
+  };
+
+  const onDelete = async (song: InterfaceSong) => {
+    await deleteDoc(doc(dbService, "songs", song.id));
+    const copySongs = songs.slice();
+    copySongs.splice(copySongs.indexOf(song), 1);
+    reRankNewSongs(copySongs);
+    /* setSongs((current) => {
       const copySongs = [...current];
       copySongs.splice(rank - 1, 1);
       const newSongs = copySongs.map((song, index) => ({
@@ -141,7 +144,7 @@ function Table() {
         ["rank"]: index + 1,
       }));
       return newSongs;
-    });
+    }); */
   };
 
   return (
@@ -176,7 +179,7 @@ function Table() {
                             <UpdateModal song={song} />
                           </td>
                         ) : null}
-                        <DeleteTd onClick={(e) => onDelete(song.rank)}>
+                        <DeleteTd onClick={(e) => onDelete(song)}>
                           <DeleteButton>×</DeleteButton>
                         </DeleteTd>
                       </Tr>

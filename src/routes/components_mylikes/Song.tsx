@@ -73,6 +73,7 @@ function Song({ loggedInUser }: SongProps) {
       songsDB.sort((a, b) => a.rank - b.rank);
       setSongs(songsDB);
     });
+    console.log("useEffect&snapshot rendered.");
   }, []);
 
   return (
