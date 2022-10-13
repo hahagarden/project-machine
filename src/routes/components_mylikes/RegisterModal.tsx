@@ -5,6 +5,7 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { User } from "firebase/auth";
 import { dbService } from "../../fbase";
 import { collection, addDoc } from "firebase/firestore";
+import { InterfaceSong } from "./atoms_mylikes";
 
 const animation_show = keyframes`
   from{
@@ -158,14 +159,6 @@ const Button = styled.button`
     color: white;
   }
 `;
-export interface InterfaceSong {
-  createdAt: number;
-  creatorId: string;
-  genre: string;
-  rank: number;
-  singer: string;
-  title: string;
-}
 
 interface ModalProps {
   loggedInUser: User | null;
@@ -184,6 +177,8 @@ function Modal({ loggedInUser, songs }: ModalProps) {
       genre: data.genre,
       creatorId: loggedInUser?.uid,
       createdAt: Date.now(),
+      updatedAt: Date.now(),
+      id: "",
     };
     try {
       const addSong = await addDoc(collection(dbService, "songs"), newSong);

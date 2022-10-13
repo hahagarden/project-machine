@@ -2,6 +2,8 @@ import { ISong, songsAtom, updateModalOnAtom } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
+import { doc, updateDoc } from "firebase/firestore";
+import { dbService } from "../../fbase";
 
 const animation_show = keyframes`
   from{
@@ -160,7 +162,7 @@ const Button = styled.button`
 `;
 
 function UpdateModal({ song }: IUpdateModalProps) {
-  const [songs, setSongs] = useRecoilState(songsAtom);
+  const songs = useRecoilValue(songsAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({
     defaultValues: {
@@ -169,7 +171,7 @@ function UpdateModal({ song }: IUpdateModalProps) {
       genre: song.genre,
     },
   });
-  const onSubmit = (data: IForm) => {
+  const onSubmit = async (data: IForm) => {
     if (
       song.title == data.title &&
       song.singer == data.singer &&
@@ -178,21 +180,14 @@ function UpdateModal({ song }: IUpdateModalProps) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const targetIndex = songs.findIndex((obj) => obj.id == song.id);
-      setSongs((prevSongs) => {
-        const copySongs = [...prevSongs];
-        const newSong = {
-          id: song.id,
-          rank: Number(song.rank),
-          title: data.title,
-          singer: data.singer,
-          genre: data.genre,
-        };
-        copySongs.splice(targetIndex, 1, newSong);
-        copySongs.sort((a, b) => Number(a.rank) - Number(b.rank));
-        return copySongs;
+      const updatingSong = doc(dbService, "songs", song.id);
+      await updateDoc(updatingSong, {
+        title: data.title,
+        singer: data.singer,
+        genre: data.genre,
+        updatedAt: Date.now(),
       });
-      console.log(data);
+      alert("updated.");
     }
   };
   const modalClose = () => {

@@ -24,6 +24,33 @@ export interface ISong {
   genre: string;
 }
 
+export interface InterfaceSong {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  creatorId: string;
+  genre: string;
+  rank: number;
+  singer: string;
+  title: string;
+}
+
+export const songsFireAtom = atom<InterfaceSong[]>({
+  key: "songsAtom",
+  default: [],
+});
+
+export const songsFireSelector = selector<InterfaceSong[]>({
+  key: "songsSelector",
+  get: ({ get }) => {
+    const songs = get(songsFireAtom);
+    return songs;
+  },
+  set: ({ set }, newValue) => {
+    set(songsFireAtom, newValue);
+  },
+});
+
 export const songsAtom = atom<ISong[]>({
   key: "songs",
   default: [],
@@ -31,7 +58,7 @@ export const songsAtom = atom<ISong[]>({
 });
 
 export const songsSelector = selectorFamily({
-  key: "songsSelector",
+  key: "songsGenreSelector",
   get:
     (genre) =>
     ({ get }) => {

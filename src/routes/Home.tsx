@@ -121,7 +121,7 @@ function Home({ isLoggedIn, loggedInUser }: HomeProps) {
         </Header>
         <Container>
           <Routes>
-            <Route path="/" element={<Toys />} />
+            <Route path="/" element={<Toys isLoggedIn={isLoggedIn} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/join" element={<Join />} />
             <Route

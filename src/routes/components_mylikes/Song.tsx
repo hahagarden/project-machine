@@ -1,14 +1,21 @@
 import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
-import { registerModalOnAtom } from "./atoms_mylikes";
+import { registerModalOnAtom, songsFireAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link } from "react-router-dom";
 import Genre from "./Genre";
 import { User } from "firebase/auth";
-import { onSnapshot, query, collection, where } from "firebase/firestore";
+import {
+  onSnapshot,
+  query,
+  collection,
+  where,
+  orderBy,
+} from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect, useState } from "react";
+import { InterfaceSong } from "./atoms_mylikes";
 
 interface SongProps {
   loggedInUser: User | null;
@@ -47,18 +54,9 @@ const Button = styled.button`
   }
 `;
 
-export interface InterfaceSong {
-  createdAt: number;
-  creatorId: string;
-  genre: string;
-  rank: number;
-  singer: string;
-  title: string;
-}
-
 function Song({ loggedInUser }: SongProps) {
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
-  const [songs, setSongs] = useState<InterfaceSong[]>([]);
+  const [songs, setSongs] = useRecoilState(songsFireAtom);
   const modalOpen = () => {
     setModalOn(true);
   };
@@ -70,12 +68,12 @@ function Song({ loggedInUser }: SongProps) {
     onSnapshot(q, (querySnapshot) => {
       const songsDB = [] as InterfaceSong[];
       querySnapshot.forEach((doc) => {
-        songsDB.push(doc.data() as InterfaceSong);
+        songsDB.push({ ...(doc.data() as InterfaceSong), id: doc.id });
       });
+      songsDB.sort((a, b) => a.rank - b.rank);
       setSongs(songsDB);
     });
   }, []);
-  console.log(songs);
 
   return (
     <>
@@ -93,7 +91,6 @@ function Song({ loggedInUser }: SongProps) {
           </Button>
         </Menu>
       </Wrapper>
-
       <Routes>
         <Route path="/table" element={<Table />} />
         <Route path="/genre" element={<Genre />} />

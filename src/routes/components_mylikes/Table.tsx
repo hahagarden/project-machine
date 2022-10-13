@@ -1,6 +1,6 @@
-import { useRecoilValue, useRecoilState } from "recoil";
-import { useEffect } from "react";
-import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
+import { useRecoilState } from "recoil";
+import React, { useEffect, useState } from "react";
+import { updateModalOnAtom, songsFireSelector } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import {
@@ -10,6 +10,8 @@ import {
   Draggable,
 } from "react-beautiful-dnd";
 import { keyframes } from "styled-components";
+import { doc, updateDoc } from "firebase/firestore";
+import { dbService } from "../../fbase";
 
 const animation = keyframes`
   from{
@@ -77,11 +79,20 @@ interface ITableHeader {
 }
 
 function Table() {
-  const [songs, setSongs] = useRecoilState(songsAtom);
+  const [songs, setSongs] = useRecoilState(songsFireSelector);
+  const [changingRanking, setChangingRanking] = useState(false);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   useEffect(() => {
     setUpdateOn(() => Array.from({ length: songs.length }, () => false));
   }, [songs]);
+
+  useEffect(() => {
+    songs.map(async (song) => {
+      const updatingSong = doc(dbService, "songs", song.id);
+      await updateDoc(updatingSong, { rank: song.rank });
+    });
+  }, [changingRanking]);
+
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
@@ -106,6 +117,7 @@ function Table() {
   const onDragEnd = ({ destination, source }: DropResult) => {
     if (!destination) return;
     else {
+      setChangingRanking((current) => !current);
       setSongs((current) => {
         const copySongs = [...current];
         const targetObj = copySongs[source.index];
@@ -115,11 +127,11 @@ function Table() {
           ...song,
           ["rank"]: index + 1,
         }));
-        newSongs.sort((a, b) => a.rank - b.rank);
         return newSongs;
       });
     }
   };
+
   const onDelete = (rank: number) => {
     setSongs((current) => {
       const copySongs = [...current];
