@@ -16,7 +16,7 @@ import {
   Draggable,
 } from "react-beautiful-dnd";
 import { keyframes } from "styled-components";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { User } from "firebase/auth";
 
@@ -118,9 +118,17 @@ function Table({ loggedInUser }: ITableProps) {
     genre: "Genre",
   };
 
-  const setNewRanking = async (newRanking: IRanking) => {
+  const setNewRanking = async (
+    newRanking: IRanking,
+    songId?: InterfaceSong["id"]
+  ) => {
+    console.log(newRanking);
     const rankingDoc = doc(dbService, "songs", `ranking_${loggedInUser?.uid}`);
-    await updateDoc(rankingDoc, newRanking);
+    if (songId) {
+      await updateDoc(rankingDoc, { ...newRanking, [songId]: deleteField() });
+    } else {
+      await updateDoc(rankingDoc, newRanking);
+    }
     //update firestore
   };
 
@@ -148,12 +156,15 @@ function Table({ loggedInUser }: ITableProps) {
   const onDelete = async (song: InterfaceSong) => {
     await deleteDoc(doc(dbService, "songs", song.id));
     const copyRanking = Object.assign({}, ranking);
+    console.log(copyRanking);
+    delete copyRanking[song.id];
     Object.keys(copyRanking).forEach(
       (songId) =>
         copyRanking[songId] > copyRanking[song.id] &&
         (copyRanking[songId] = copyRanking[songId] - 1)
     );
-    setNewRanking(copyRanking);
+    console.log(copyRanking);
+    setNewRanking(copyRanking, song.id);
   };
 
   return (
