@@ -1,4 +1,8 @@
-import { ISong, songsAtom, updateModalOnAtom } from "./atoms_mylikes";
+import {
+  InterfaceSong,
+  songsFireAtom,
+  updateModalOnAtom,
+} from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
@@ -6,15 +10,16 @@ import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 
 const animation_show = keyframes`
-  from{
-    opacity:0%;
-  }
-  to{
-    opacity:100%;
-  };
-`;
+    from{
+      opacity:0%;
+    }
+    to{
+      opacity:100%;
+    };
+  `;
 interface IUpdateModalProps {
-  song: ISong;
+  song: InterfaceSong;
+  rank: number;
 }
 
 const ModalWindow = styled.div<{ updateOn: boolean }>`
@@ -101,38 +106,38 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width:250px;
-  height: 35px;
-  border: none;
-  border-bottom: 1px solid gray;
-  outline: none;
-  background-color: inherit;
-  color: black;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    border-bottom: 1px solid black;
+    width:250px;
+    height: 35px;
+    border: none;
+    border-bottom: 1px solid gray;
+    outline: none;
+    background-color: inherit;
+    color: black;
+    font-size: 20px;
+    transition: border-bottom 0.3s;
+    &:focus {
+      border-bottom: 1px solid black;
+      }
     }
-  }
-`;
+  `;
 
 const GenreInputLine = styled.div`
-  position: absolute;
-  left: -50px;
-  top: 95px;
-  margin-top: 15px;
-  width: 400px;
-  display: flex;
-  justify-content: center;
-  label {
-    &:nth-child(n+2):nth-child(-n+3) {
-      margin-top:3px;
-      transform: translateX(-5px);
+    position: absolute;
+    left: -50px;
+    top: 95px;
+    margin-top: 15px;
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    label {
+      &:nth-child(n+2):nth-child(-n+3) {
+        margin-top:3px;
+        transform: translateX(-5px);
+      }
     }
-  }
-
-  }
-`;
+  
+    }
+  `;
 
 const GenreInput = styled.input`
   border: none;
@@ -161,8 +166,9 @@ const Button = styled.button`
   }
 `;
 
-function UpdateModal({ song }: IUpdateModalProps) {
-  const songs = useRecoilValue(songsAtom);
+function UpdateModal({ song, rank }: IUpdateModalProps) {
+  const songs = useRecoilValue(songsFireAtom);
+  const ranking = useRecoilValue(songsFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({
     defaultValues: {
@@ -199,7 +205,7 @@ function UpdateModal({ song }: IUpdateModalProps) {
     });
   };
   return (
-    <ModalWindow updateOn={updateOn[Number(song.rank) - 1]}>
+    <ModalWindow updateOn={updateOn[rank]}>
       <Header>
         <Title>Update</Title>
         <CloseButton onClick={modalClose}>×</CloseButton>

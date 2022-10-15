@@ -4,6 +4,8 @@ import {
   updateModalOnAtom,
   songsFireSelector,
   InterfaceSong,
+  rankingFireAtom,
+  IRanking,
 } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
@@ -16,6 +18,7 @@ import {
 import { keyframes } from "styled-components";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
+import { User } from "firebase/auth";
 
 const animation = keyframes`
   from{
@@ -82,7 +85,12 @@ interface ITableHeader {
   [key: string]: string;
 }
 
-function Table() {
+interface ITableProps {
+  loggedInUser: User | null;
+}
+
+function Table({ loggedInUser }: ITableProps) {
+  const [ranking, setRanking] = useRecoilState(rankingFireAtom);
   const [songs, setSongs] = useRecoilState(songsFireSelector);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   /*   useEffect(() => {
@@ -110,41 +118,42 @@ function Table() {
     genre: "Genre",
   };
 
-  const reRankNewSongs = (prevSongs: InterfaceSong[]) => {
-    const newSongs = prevSongs.map((song, index) => ({
-      ...song,
-      ["rank"]: index + 1,
-    }));
-    setSongs(newSongs); //for re-rendering but onSnapshot
-    newSongs.map(async (song) => {
-      const updatingSong = doc(dbService, "songs", song.id);
-      await updateDoc(updatingSong, { rank: song.rank });
-    }); //update firestore
+  const setNewRanking = async (newRanking: IRanking) => {
+    const rankingDoc = doc(dbService, "songs", `ranking_${loggedInUser?.uid}`);
+    await updateDoc(rankingDoc, newRanking);
+    //update firestore
   };
 
-  const onDragEnd = ({ destination, source }: DropResult) => {
+  const onDragEnd = ({ destination, source, draggableId }: DropResult) => {
     if (!destination) return;
-    const copySongs = songs.slice();
-    const targetObj = copySongs[source.index];
-    copySongs.splice(source.index, 1);
-    copySongs.splice(destination.index, 0, targetObj);
-    reRankNewSongs(copySongs);
+    const copyRanking = Object.assign({}, ranking);
+    if (destination.index < source.index) {
+      Object.keys(copyRanking).forEach((songId) => {
+        copyRanking[songId] >= destination.index + 1 &&
+          copyRanking[songId] < source.index + 1 &&
+          (copyRanking[songId] = copyRanking[songId] + 1);
+      });
+      copyRanking[draggableId] = destination.index + 1;
+    } else if (destination.index > source.index) {
+      Object.keys(copyRanking).forEach((songId) => {
+        copyRanking[songId] > source.index + 1 &&
+          copyRanking[songId] <= destination.index + 1 &&
+          (copyRanking[songId] = copyRanking[songId] - 1);
+      });
+      copyRanking[draggableId] = destination.index + 1;
+    }
+    setNewRanking(copyRanking);
   };
 
   const onDelete = async (song: InterfaceSong) => {
     await deleteDoc(doc(dbService, "songs", song.id));
-    const copySongs = songs.slice();
-    copySongs.splice(copySongs.indexOf(song), 1);
-    reRankNewSongs(copySongs);
-    /* setSongs((current) => {
-      const copySongs = [...current];
-      copySongs.splice(rank - 1, 1);
-      const newSongs = copySongs.map((song, index) => ({
-        ...song,
-        ["rank"]: index + 1,
-      }));
-      return newSongs;
-    }); */
+    const copyRanking = Object.assign({}, ranking);
+    Object.keys(copyRanking).forEach(
+      (songId) =>
+        copyRanking[songId] > copyRanking[song.id] &&
+        (copyRanking[songId] = copyRanking[songId] - 1)
+    );
+    setNewRanking(copyRanking);
   };
 
   return (
@@ -170,13 +179,16 @@ function Table() {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        <Td>{song.rank}</Td>
+                        <Td>{ranking[song.id]}</Td>
                         <Td>{song.title}</Td>
                         <Td>{song.singer}</Td>
                         <Td>{song.genre}</Td>
-                        {updateOn[song.rank - 1] ? (
+                        {updateOn[ranking[song.id] - 1] ? (
                           <td>
-                            <UpdateModal song={song} />
+                            <UpdateModal
+                              song={song}
+                              rank={ranking[song.id] - 1}
+                            />
                           </td>
                         ) : null}
                         <DeleteTd onClick={(e) => onDelete(song)}>

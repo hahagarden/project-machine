@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { User } from "firebase/auth";
 import { dbService } from "../../fbase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, setDoc, doc } from "firebase/firestore";
 import { InterfaceSong } from "./atoms_mylikes";
 
 const animation_show = keyframes`
@@ -170,18 +170,24 @@ function Modal({ loggedInUser, songs }: ModalProps) {
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();
   const onSubmit = async (data: IForm) => {
+    const timestamp = Date.now();
+    const songId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
     const newSong = {
-      rank: songs.length + 1,
       title: data.title,
       singer: data.singer,
       genre: data.genre,
       creatorId: loggedInUser?.uid,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      id: "",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      id: songId,
     };
     try {
-      const addSong = await addDoc(collection(dbService, "songs"), newSong);
+      await setDoc(doc(dbService, "songs", songId), newSong);
+      await setDoc(
+        doc(dbService, "songs", `ranking_${loggedInUser?.uid}`),
+        { [songId]: songs.length + 1 },
+        { merge: true }
+      ); //add ranking_uid document
     } catch (e) {
       console.error("Error adding document", e);
     }

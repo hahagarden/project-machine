@@ -30,9 +30,12 @@ export interface InterfaceSong {
   updatedAt: number;
   creatorId: string;
   genre: string;
-  rank: number;
   singer: string;
   title: string;
+}
+
+export interface IRanking {
+  [songId: string]: number;
 }
 
 export const songsFireAtom = atom<InterfaceSong[]>({
@@ -49,6 +52,11 @@ export const songsFireSelector = selector<InterfaceSong[]>({
   set: ({ set }, newValue) => {
     set(songsFireAtom, newValue);
   },
+});
+
+export const rankingFireAtom = atom<IRanking>({
+  key: "rankingAtom",
+  default: {},
 });
 
 export const songsAtom = atom<ISong[]>({

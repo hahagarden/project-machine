@@ -11,12 +11,14 @@ import {
   query,
   collection,
   where,
+  doc,
   orderBy,
-  getDocs,
+  QuerySnapshot,
 } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect, useState } from "react";
 import { InterfaceSong } from "./atoms_mylikes";
+import { rankingFireAtom } from "./atoms_mylikes";
 
 interface SongProps {
   loggedInUser: User | null;
@@ -58,6 +60,7 @@ const Button = styled.button`
 function Song({ loggedInUser }: SongProps) {
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const [songs, setSongs] = useRecoilState(songsFireAtom);
+  const [ranking, setRanking] = useRecoilState(rankingFireAtom);
   const modalOpen = () => {
     setModalOn(true);
   };
@@ -66,19 +69,32 @@ function Song({ loggedInUser }: SongProps) {
       collection(dbService, "songs"),
       where("creatorId", "==", loggedInUser?.uid)
     );
-    const getDB = async () => {
-      const querySnapshot = await getDocs(q);
+    onSnapshot(q, (querySnapshot) => {
       const songsDB = [] as InterfaceSong[];
       querySnapshot.forEach((doc) => {
-        songsDB.push({ ...(doc.data() as InterfaceSong), id: doc.id });
+        songsDB.push({ ...(doc.data() as InterfaceSong) });
       });
-      songsDB.sort((a, b) => a.rank - b.rank);
       setSongs(songsDB);
-    };
-    getDB();
+    });
     console.log("useEffect&snapshot rendered.");
   }, []);
 
+  useEffect(() => {
+    onSnapshot(
+      doc(dbService, "songs", `ranking_${loggedInUser?.uid}`),
+      (doc) => {
+        setRanking({ ...doc.data() });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    const orderedSongs = songs.slice();
+    orderedSongs.sort((a, b) => ranking[a.id] - ranking[b.id]);
+    setSongs(orderedSongs);
+  }, [ranking]);
+
+  console.log(ranking, songs);
   return (
     <>
       <Wrapper>
@@ -96,7 +112,7 @@ function Song({ loggedInUser }: SongProps) {
         </Menu>
       </Wrapper>
       <Routes>
-        <Route path="/table" element={<Table />} />
+        <Route path="/table" element={<Table loggedInUser={loggedInUser} />} />
         <Route path="/genre" element={<Genre />} />
       </Routes>
     </>
