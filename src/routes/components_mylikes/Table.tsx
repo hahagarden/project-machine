@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   updateModalOnAtom,
   songsFireSelector,
@@ -88,12 +88,12 @@ interface ITableHeader {
 
 function Table() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const [ranking, setRanking] = useRecoilState(rankingFireAtom);
-  const [songs, setSongs] = useRecoilState(songsFireSelector);
+  const ranking = useRecoilValue(rankingFireAtom);
+  const songs = useRecoilValue(songsFireSelector);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  /*   useEffect(() => {
+  useEffect(() => {
     setUpdateOn(() => Array.from({ length: songs.length }, () => false));
-  }, [songs]); */
+  }, [songs]);
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
