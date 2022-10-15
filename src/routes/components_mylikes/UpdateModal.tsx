@@ -69,12 +69,6 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-interface IForm {
-  title: string;
-  singer: string;
-  genre: string;
-}
-
 const Form = styled.form`
   position: relative;
   display: flex;
@@ -165,6 +159,12 @@ const Button = styled.button`
     color: white;
   }
 `;
+
+interface IForm {
+  title: string;
+  singer: string;
+  genre: string;
+}
 
 function UpdateModal({ song, rank }: IUpdateModalProps) {
   const songs = useRecoilValue(songsFireAtom);

@@ -1,6 +1,6 @@
+import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { authService } from "../fbase";
 
@@ -75,39 +75,36 @@ interface ILoginForm {
   email: string;
   pw: string;
 }
+
 function Login() {
   const navigator = useNavigate();
-  /*   const joinedUser = useRecoilValue(joinedUserAtom);
-  const setLoggedInUser = useSetRecoilState(loggedInUserAtom); */
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<ILoginForm>();
-
   const onSubmit = (data: ILoginForm) => {
-    /*     const targetIndex = joinedUser.findIndex(
-      (user) => user.email === data.email
-    );
-    if (targetIndex == -1)
-      setError("email", { message: "email does not exist." });
-    else if (joinedUser[targetIndex].password !== data.pw)
-      setError("pw", { message: "password does not correct." });
-    else {
-      setLoggedInUser(joinedUser[targetIndex]); */
     signInWithEmailAndPassword(authService, data.email, data.pw)
       .then((user) => {
         alert(`Hello ${data.email}!`);
         navigator("/");
       })
       .catch((error) => {
+        console.log(error);
         const errorCode = error.code;
-        const errorMessage = error.message;
-        alert(errorMessage);
+        switch (errorCode) {
+          case "auth/user-not-found":
+            alert("email does not exist.");
+            break;
+          case "auth/wrong-password":
+            alert("wrong password.");
+            break;
+          default:
+            alert("login inavailable.");
+        }
       });
   };
-  console.log(errors);
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
@@ -132,8 +129,8 @@ function Login() {
           <Input
             {...register("pw", {
               required: true,
-              minLength: { value: 4, message: "minimum length is 4" },
-              maxLength: { value: 10, message: "maximum length is 10" },
+              minLength: { value: 6, message: "minimum length is 6" },
+              maxLength: { value: 12, message: "maximum length is 12" },
             })}
             id="pw"
             placeholder="password"

@@ -1,11 +1,9 @@
 import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import Song from "./components_mylikes/Song";
 import Movie from "./components_mylikes/Movie";
-import { User } from "firebase/auth";
-interface MyLikesProps {
-  loggedInUser: User | null;
-}
+import { loggedInUserAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -57,7 +55,8 @@ const Button = styled.button`
   }
 `;
 
-function MyLikes({ loggedInUser }: MyLikesProps) {
+function MyLikes() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   return (
     <>
       <Wrapper>
@@ -65,7 +64,7 @@ function MyLikes({ loggedInUser }: MyLikesProps) {
           <Title>My Likes</Title>
           <Menu>
             <Button>
-              <Link to="/mylikes/song/table">Song </Link>
+              <Link to="/mylikes/song/table">Song</Link>
             </Button>
             <Button>
               <Link to="/mylikes/movie">Movie</Link>
@@ -73,10 +72,7 @@ function MyLikes({ loggedInUser }: MyLikesProps) {
           </Menu>
         </Header>
         <Routes>
-          <Route
-            path="/song/*"
-            element={<Song loggedInUser={loggedInUser} />}
-          />
+          <Route path="/song/*" element={<Song />} />
           <Route path="/movie" element={<Movie />} />
         </Routes>
       </Wrapper>

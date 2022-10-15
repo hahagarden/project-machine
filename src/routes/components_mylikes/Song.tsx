@@ -5,24 +5,13 @@ import { registerModalOnAtom, songsFireAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link } from "react-router-dom";
 import Genre from "./Genre";
-import { User } from "firebase/auth";
-import {
-  onSnapshot,
-  query,
-  collection,
-  where,
-  doc,
-  orderBy,
-  QuerySnapshot,
-} from "firebase/firestore";
+import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { InterfaceSong } from "./atoms_mylikes";
 import { rankingFireAtom } from "./atoms_mylikes";
-
-interface SongProps {
-  loggedInUser: User | null;
-}
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../../atom";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -57,7 +46,8 @@ const Button = styled.button`
   }
 `;
 
-function Song({ loggedInUser }: SongProps) {
+function Song() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const [songs, setSongs] = useRecoilState(songsFireAtom);
   const [ranking, setRanking] = useRecoilState(rankingFireAtom);
@@ -78,7 +68,6 @@ function Song({ loggedInUser }: SongProps) {
     });
     console.log("useEffect&snapshot rendered.");
   }, []);
-
   useEffect(() => {
     onSnapshot(
       doc(dbService, "songs", `ranking_${loggedInUser?.uid}`),
@@ -87,22 +76,17 @@ function Song({ loggedInUser }: SongProps) {
       }
     );
   }, []);
-
   useEffect(() => {
     const orderedSongs = songs.slice();
     orderedSongs.sort((a, b) => ranking[a.id] - ranking[b.id]);
     setSongs(orderedSongs);
   }, [ranking]);
-
-  console.log(ranking, songs);
   return (
     <>
       <Wrapper>
         <Menu>
           <Button onClick={modalOpen}>Register</Button>
-          {modalOn && (
-            <RegisterModal loggedInUser={loggedInUser} songs={songs} />
-          )}
+          {modalOn && <RegisterModal songs={songs} />}
           <Button>
             <Link to="/mylikes/song/table">Ranking Table</Link>
           </Button>
@@ -112,7 +96,7 @@ function Song({ loggedInUser }: SongProps) {
         </Menu>
       </Wrapper>
       <Routes>
-        <Route path="/table" element={<Table loggedInUser={loggedInUser} />} />
+        <Route path="/table" element={<Table />} />
         <Route path="/genre" element={<Genre />} />
       </Routes>
     </>

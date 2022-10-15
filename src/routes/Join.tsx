@@ -1,8 +1,8 @@
+import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { authService } from "../fbase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { authService } from "../fbase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -89,40 +89,31 @@ function Join() {
     setError,
     formState: { errors },
   } = useForm<IJoinForm>();
-  /*   const [joinedUser, setJoinedUser] = useRecoilState(joinedUserAtom); */
   const onSubmit = (data: IJoinForm) => {
-    /*   if (data.pwConfirm !== data.pw) {
+    if (data.pwConfirm !== data.pw) {
       setError(
         "pwConfirm",
         { message: "password are not the same" },
         { shouldFocus: true }
       );
-    } else if (
-      joinedUser.findIndex((user) => user.email === data.email) !== -1
-    ) {
-      setError(
-        "email",
-        { message: "username already exist" },
-        { shouldFocus: true }
-      );
-    } else {
-      setJoinedUser((prevUser) => [
-        { email: data.email, name: data.name, password: data.pw },
-        ...prevUser,
-      ]); */
+    }
     createUserWithEmailAndPassword(authService, data.email, data.pw)
       .then((user) => {
         alert(`welcome ${data.email}!`);
         navigator("/login");
       })
       .catch((error) => {
+        console.log(error);
         const errorCode = error.code;
-        const errorMessage = error.message;
-        alert(errorMessage);
+        switch (errorCode) {
+          case "auth/email-already-in-use":
+            alert("email already exists.");
+            break;
+          default:
+            alert("Join inavailable.");
+        }
       });
   };
-
-  console.log(errors);
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>

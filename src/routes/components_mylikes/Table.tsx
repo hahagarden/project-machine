@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   updateModalOnAtom,
   songsFireSelector,
@@ -18,7 +18,8 @@ import {
 import { keyframes } from "styled-components";
 import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { dbService } from "../../fbase";
-import { User } from "firebase/auth";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../../atom";
 
 const animation = keyframes`
   from{
@@ -85,18 +86,14 @@ interface ITableHeader {
   [key: string]: string;
 }
 
-interface ITableProps {
-  loggedInUser: User | null;
-}
-
-function Table({ loggedInUser }: ITableProps) {
+function Table() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [ranking, setRanking] = useRecoilState(rankingFireAtom);
   const [songs, setSongs] = useRecoilState(songsFireSelector);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   /*   useEffect(() => {
     setUpdateOn(() => Array.from({ length: songs.length }, () => false));
   }, [songs]); */
-
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
@@ -110,19 +107,16 @@ function Table({ loggedInUser }: ITableProps) {
       return copyCurrent;
     });
   };
-
   const tableHeader: ITableHeader = {
     rank: "Rank",
     title: "Title",
     singer: "Singer",
     genre: "Genre",
   };
-
   const setNewRanking = async (
     newRanking: IRanking,
     songId?: InterfaceSong["id"]
   ) => {
-    console.log(newRanking);
     const rankingDoc = doc(dbService, "songs", `ranking_${loggedInUser?.uid}`);
     if (songId) {
       await updateDoc(rankingDoc, { ...newRanking, [songId]: deleteField() });
@@ -131,7 +125,6 @@ function Table({ loggedInUser }: ITableProps) {
     }
     //update firestore
   };
-
   const onDragEnd = ({ destination, source, draggableId }: DropResult) => {
     if (!destination) return;
     const copyRanking = Object.assign({}, ranking);
@@ -152,21 +145,17 @@ function Table({ loggedInUser }: ITableProps) {
     }
     setNewRanking(copyRanking);
   };
-
   const onDelete = async (song: InterfaceSong) => {
     await deleteDoc(doc(dbService, "songs", song.id));
     const copyRanking = Object.assign({}, ranking);
-    console.log(copyRanking);
     delete copyRanking[song.id];
     Object.keys(copyRanking).forEach(
       (songId) =>
         copyRanking[songId] > copyRanking[song.id] &&
         (copyRanking[songId] = copyRanking[songId] - 1)
     );
-    console.log(copyRanking);
     setNewRanking(copyRanking, song.id);
   };
-
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -220,73 +209,3 @@ function Table({ loggedInUser }: ITableProps) {
 }
 
 export default Table;
-
-/* const columnData = [
-  { accessor: "rank", Header: "Rank" },
-  { accessor: "title", Header: "Title" },
-  { accessor: "singer", Header: "Singer" },
-  { accessor: "genre", Header: "Genre" },
-];
-
-const Search = ({ onSubmit }: any) => {
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    onSubmit(event.target.elements.filter.value);
-  };
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="filter" />
-      <button>Search</button>
-    </form>
-  );
-};
-
-const Table = () => {
-  const songs = useRecoilValue(songsAtom);
-  const columns = useMemo(() => columnData, []);
-  const data = useMemo(() => songs, [songs]);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    setGlobalFilter,
-  } = useTable({ columns, data } as any, useGlobalFilter, useSortBy);
-  const onReset = () => {
-    setGlobalFilter("");
-  };
-  return (
-    <>
-      <div style={{ display: "flex" }}>
-        <Search onSubmit={setGlobalFilter} />
-        <button onClick={onReset}>↺</button>
-      </div>
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getFooterGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </>
-  );
-}; */

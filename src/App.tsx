@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 import GlobalStyle from "./styles/GlobalStyle";
 import Router from "./Router";
 import { authService } from "./fbase";
-import { useRecoilState } from "recoil";
 import { loggedInUserAtom } from "./atom";
-import { User } from "firebase/auth";
 
 function App() {
   const [init, setInit] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const setLoggedInUser = useSetRecoilState(loggedInUserAtom);
   useEffect(
     authService.onAuthStateChanged((user) => {
       if (user) {
-        setIsLoggedIn(true);
-        setLoggedInUser(user);
-      } else setIsLoggedIn(false);
+        const loggedInUser = {
+          email: user.email,
+          metadata: user.metadata,
+          uid: user.uid,
+        }; //disable to set user(:User) to recoil atom.
+        setLoggedInUser(loggedInUser);
+      } else {
+        setLoggedInUser(null);
+      }
       setInit(true);
     }),
     []
@@ -23,11 +27,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      {init ? (
-        <Router isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} />
-      ) : (
-        "Initializing..."
-      )}
+      {init ? <Router /> : "Initializing..."}
     </>
   );
 }

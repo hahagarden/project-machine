@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../atom";
 
 const Container = styled.div`
   padding: 50px;
@@ -43,16 +45,13 @@ const Toy = styled.div`
   }
 `;
 
-interface IToys {
-  isLoggedIn: boolean;
-}
-
-function Toys({ isLoggedIn }: IToys) {
+function Toys() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   return (
     <Container>
       <Shelf>
         <Toy>
-          {isLoggedIn ? <Link to="/mylikes">My Likes</Link> : "MyLikes"}
+          {loggedInUser ? <Link to="/mylikes">My Likes</Link> : "MyLikes"}
         </Toy>
         <Toy></Toy>
         <Toy></Toy>

@@ -1,11 +1,12 @@
 import styled, { keyframes } from "styled-components";
-import { registerModalOnAtom, songsAtom } from "./atoms_mylikes";
+import { registerModalOnAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { User } from "firebase/auth";
+import { useRecoilState } from "recoil";
 import { dbService } from "../../fbase";
-import { collection, setDoc, doc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 import { InterfaceSong } from "./atoms_mylikes";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../../atom";
 
 const animation_show = keyframes`
   from{
@@ -161,12 +162,11 @@ const Button = styled.button`
 `;
 
 interface ModalProps {
-  loggedInUser: User | null;
   songs: InterfaceSong[];
 }
 
-function Modal({ loggedInUser, songs }: ModalProps) {
-  const setSongs = useSetRecoilState(songsAtom);
+function Modal({ songs }: ModalProps) {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();
   const onSubmit = async (data: IForm) => {
@@ -193,11 +193,9 @@ function Modal({ loggedInUser, songs }: ModalProps) {
     }
     reset({ title: "", singer: "", genre: "" });
   };
-
   const modalClose = () => {
     setRegisterOn(false);
   };
-
   return (
     <ModalWindow registerOn={registerOn}>
       <Header>
@@ -224,7 +222,6 @@ function Modal({ loggedInUser, songs }: ModalProps) {
               {...register("singer", { required: true })}
             ></Input>
           </InputLine>
-
           <GenreInputLine>
             <Label>genre</Label>
             <Label id="JPOP">
@@ -246,7 +243,6 @@ function Modal({ loggedInUser, songs }: ModalProps) {
               KPOP
             </Label>
           </GenreInputLine>
-
           <Button>Add</Button>
         </Form>
       </Container>

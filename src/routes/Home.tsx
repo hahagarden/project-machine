@@ -1,17 +1,13 @@
 import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { useRecoilValue } from "recoil";
 import Login from "./Login";
 import Join from "./Join";
 import MyLikes from "./MyLikes";
 import Toys from "./Toys";
-import { signOut } from "firebase/auth";
+import { loggedInUserAtom } from "../atom";
 import { authService } from "../fbase";
-import { User } from "firebase/auth";
-
-interface HomeProps {
-  isLoggedIn: boolean;
-  loggedInUser: User | null;
-}
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -84,30 +80,27 @@ const Container = styled.div`
   width: 100vw;
 `;
 
-function Home({ isLoggedIn, loggedInUser }: HomeProps) {
-  /*   const [nowUser, setNowUser] = useRecoilState(loggedInUserAtom); */
-
+function Home() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const logOut = () => {
     if (window.confirm("Do you want to log out?"))
-      /* setNowUser(() => ({ email: "", name: "", password: "" })); */
       signOut(authService)
         .then(() => alert("logged out"))
         .catch();
   };
-
   return (
     <>
       (
       <Wrapper>
         <Header>
           <Title>
-            {/*  {isLoggedIn ? `${nowUser.email}'s ` : null} */} Project Machine
+            {loggedInUser ? `${loggedInUser.email}'s ` : null} Project Machine
           </Title>
           <Menu>
             <Button>
               <Link to="/">Home</Link>
             </Button>
-            {isLoggedIn ? (
+            {loggedInUser ? (
               <Button onClick={logOut}>Logout</Button>
             ) : (
               <Button>
@@ -121,13 +114,10 @@ function Home({ isLoggedIn, loggedInUser }: HomeProps) {
         </Header>
         <Container>
           <Routes>
-            <Route path="/" element={<Toys isLoggedIn={isLoggedIn} />} />
+            <Route path="/" element={<Toys />} />
             <Route path="/login" element={<Login />} />
             <Route path="/join" element={<Join />} />
-            <Route
-              path="/mylikes/*"
-              element={<MyLikes loggedInUser={loggedInUser} />}
-            />
+            <Route path="/mylikes/*" element={<MyLikes />} />
           </Routes>
         </Container>
       </Wrapper>
