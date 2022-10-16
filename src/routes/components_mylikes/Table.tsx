@@ -148,12 +148,12 @@ function Table() {
   const onDelete = async (song: InterfaceSong) => {
     await deleteDoc(doc(dbService, "songs", song.id));
     const copyRanking = Object.assign({}, ranking);
-    delete copyRanking[song.id];
     Object.keys(copyRanking).forEach(
       (songId) =>
         copyRanking[songId] > copyRanking[song.id] &&
         (copyRanking[songId] = copyRanking[songId] - 1)
     );
+    delete copyRanking[song.id];
     setNewRanking(copyRanking, song.id);
   };
   return (
