@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import { Routes, Route, Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import Song from "./components_mylikes/Song";
-import Movie from "./components_mylikes/Movie";
-import { loggedInUserAtom } from "../atom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import MyLike from "./components_mylikes/Song";
+import { mylikesCategoryAtom } from "./components_mylikes/atoms_mylikes";
 
 const Wrapper = styled.div`
   display: flex;
@@ -39,41 +38,35 @@ const Button = styled.button`
   margin: 0 20px;
   border: none;
   font-size: 20px;
-
-  a {
-    color: white;
-    display: block;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    line-height: 40px;
-    text-decoration: underline;
-    transition: 0.2s;
-    &:hover {
-      color: #ff0063;
-    }
+  color: white;
+  text-decoration: underline;
+  transition: 0.2s;
+  cursor:pointer;
+  &:hover {
+    color: #ff0063;}
   }
 `;
 
 function MyLikes() {
-  const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const setMyLikesCategory = useSetRecoilState(mylikesCategoryAtom);
+  const navigate = useNavigate();
+  const onClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const currentCategory = event.currentTarget.innerText;
+    setMyLikesCategory(currentCategory + "s");
+    navigate(`/mylikes/${currentCategory}/table`);
+  };
   return (
     <>
       <Wrapper>
         <Header>
           <Title>My Likes</Title>
           <Menu>
-            <Button>
-              <Link to="/mylikes/song/table">Song</Link>
-            </Button>
-            <Button>
-              <Link to="/mylikes/movie">Movie</Link>
-            </Button>
+            <Button onClick={onClick}>song</Button>
+            <Button onClick={onClick}>movie</Button>
           </Menu>
         </Header>
         <Routes>
-          <Route path="/song/*" element={<Song />} />
-          <Route path="/movie" element={<Movie />} />
+          <Route path="/:category/*" element={<MyLike />} />
         </Routes>
       </Wrapper>
     </>

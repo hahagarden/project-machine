@@ -1,6 +1,6 @@
 import {
-  InterfaceSong,
-  songsFireAtom,
+  InterfaceLike,
+  likesFireAtom,
   updateModalOnAtom,
   songGenres,
 } from "./atoms_mylikes";
@@ -19,7 +19,7 @@ const animation_show = keyframes`
     };
   `;
 interface IUpdateModalProps {
-  song: InterfaceSong;
+  like: InterfaceLike;
   rank: number;
 }
 
@@ -167,27 +167,27 @@ interface IForm {
   genre: string;
 }
 
-function UpdateModal({ song, rank }: IUpdateModalProps) {
-  const songs = useRecoilValue(songsFireAtom);
-  const ranking = useRecoilValue(songsFireAtom);
+function UpdateModal({ like, rank }: IUpdateModalProps) {
+  const songs = useRecoilValue(likesFireAtom);
+  const ranking = useRecoilValue(likesFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit } = useForm<IForm>({
     defaultValues: {
-      title: song.title,
-      singer: song.singer,
-      genre: song.genre,
+      title: like.title,
+      singer: like.singer,
+      genre: like.genre,
     },
   });
   const onSubmit = async (data: IForm) => {
     if (
-      song.title == data.title &&
-      song.singer == data.singer &&
-      song.genre == data.genre
+      like.title == data.title &&
+      like.singer == data.singer &&
+      like.genre == data.genre
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const updatingSong = doc(dbService, "songs", song.id);
+      const updatingSong = doc(dbService, "songs", like.id);
       await updateDoc(updatingSong, {
         title: data.title,
         singer: data.singer,
@@ -232,7 +232,7 @@ function UpdateModal({ song, rank }: IUpdateModalProps) {
           <GenreInputLine>
             <Label>genre</Label>
             {Object.values(songGenres).map((genre) => (
-              <Label id={genre}>
+              <Label key={genre} id={genre}>
                 <GenreInput
                   type="radio"
                   id={genre}

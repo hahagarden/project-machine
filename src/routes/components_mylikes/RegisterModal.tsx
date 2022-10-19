@@ -1,10 +1,14 @@
 import styled, { keyframes } from "styled-components";
-import { registerModalOnAtom, songGenres } from "./atoms_mylikes";
+import {
+  registerModalOnAtom,
+  songGenres,
+  mylikesCategoryAtom,
+  likesFireAtom,
+} from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { dbService } from "../../fbase";
 import { setDoc, doc } from "firebase/firestore";
-import { InterfaceSong } from "./atoms_mylikes";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
 
@@ -161,17 +165,15 @@ const Button = styled.button`
   }
 `;
 
-interface ModalProps {
-  songs: InterfaceSong[];
-}
-
-function Modal({ songs }: ModalProps) {
+function Modal() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  const likes = useRecoilValue(likesFireAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();
   const onSubmit = async (data: IForm) => {
     const timestamp = Date.now();
-    const songId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
+    const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
     const newSong = {
       title: data.title,
       singer: data.singer,
@@ -179,13 +181,13 @@ function Modal({ songs }: ModalProps) {
       creatorId: loggedInUser?.uid,
       createdAt: timestamp,
       updatedAt: timestamp,
-      id: songId,
+      id: likeId,
     };
     try {
-      await setDoc(doc(dbService, "songs", songId), newSong);
+      await setDoc(doc(dbService, currentCategory, likeId), newSong);
       await setDoc(
-        doc(dbService, "songs", `ranking_${loggedInUser?.uid}`),
-        { [songId]: songs.length + 1 },
+        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
+        { [likeId]: likes.length + 1 },
         { merge: true }
       ); //add ranking_uid document
     } catch (e) {
@@ -225,7 +227,7 @@ function Modal({ songs }: ModalProps) {
           <GenreInputLine>
             <Label>genre</Label>
             {Object.values(songGenres).map((genre) => (
-              <Label id={genre}>
+              <Label key={genre} id={genre}>
                 <GenreInput
                   type="radio"
                   id={genre}

@@ -2,10 +2,11 @@ import { useRecoilState } from "recoil";
 import React, { useEffect } from "react";
 import {
   updateModalOnAtom,
-  InterfaceSong,
-  rankingFireAtom,
+  InterfaceLike,
+  likesRankingFireAtom,
   IRanking,
-  songsFireAtom,
+  likesFireAtom,
+  mylikesCategoryAtom,
 } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
@@ -88,17 +89,18 @@ interface ITableHeader {
 
 function Table() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const ranking = useRecoilValue(rankingFireAtom);
-  const songs = useRecoilValue(songsFireAtom);
+  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  const ranking = useRecoilValue(likesRankingFireAtom);
+  const likes = useRecoilValue(likesFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   useEffect(() => {
-    setUpdateOn(() => Array.from({ length: songs.length }, () => false));
-  }, [songs]);
+    setUpdateOn(() => Array.from({ length: likes.length }, () => false));
+  }, [likes]);
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
     console.log(event);
-    const targetIndex = songs.findIndex(
+    const targetIndex = likes.findIndex(
       (obj) => obj.id == event.currentTarget.dataset.rbdDraggableId
     );
     setUpdateOn((current) => {
@@ -115,11 +117,15 @@ function Table() {
   };
   const setNewRanking = async (
     newRanking: IRanking,
-    songId?: InterfaceSong["id"]
+    likeId?: InterfaceLike["id"]
   ) => {
-    const rankingDoc = doc(dbService, "songs", `ranking_${loggedInUser?.uid}`);
-    if (songId) {
-      await updateDoc(rankingDoc, { ...newRanking, [songId]: deleteField() });
+    const rankingDoc = doc(
+      dbService,
+      currentCategory,
+      `ranking_${loggedInUser?.uid}`
+    );
+    if (likeId) {
+      await updateDoc(rankingDoc, { ...newRanking, [likeId]: deleteField() });
     } else {
       await updateDoc(rankingDoc, newRanking);
     }
@@ -129,10 +135,10 @@ function Table() {
     if (!destination) return;
     const copyRanking = Object.assign({}, ranking);
     if (destination.index < source.index) {
-      Object.keys(copyRanking).forEach((songId) => {
-        copyRanking[songId] >= destination.index + 1 &&
-          copyRanking[songId] < source.index + 1 &&
-          (copyRanking[songId] = copyRanking[songId] + 1);
+      Object.keys(copyRanking).forEach((likeId) => {
+        copyRanking[likeId] >= destination.index + 1 &&
+          copyRanking[likeId] < source.index + 1 &&
+          (copyRanking[likeId] = copyRanking[likeId] + 1);
       });
       copyRanking[draggableId] = destination.index + 1;
     } else if (destination.index > source.index) {
@@ -145,16 +151,16 @@ function Table() {
     }
     setNewRanking(copyRanking);
   };
-  const onDelete = async (song: InterfaceSong) => {
-    await deleteDoc(doc(dbService, "songs", song.id));
+  const onDelete = async (like: InterfaceLike) => {
+    await deleteDoc(doc(dbService, currentCategory, like.id));
     const copyRanking = Object.assign({}, ranking);
     Object.keys(copyRanking).forEach(
       (songId) =>
-        copyRanking[songId] > copyRanking[song.id] &&
+        copyRanking[songId] > copyRanking[like.id] &&
         (copyRanking[songId] = copyRanking[songId] - 1)
     );
-    delete copyRanking[song.id];
-    setNewRanking(copyRanking, song.id);
+    delete copyRanking[like.id];
+    setNewRanking(copyRanking, like.id);
   };
   return (
     <>
@@ -170,8 +176,8 @@ function Table() {
           <Droppable droppableId={"table"}>
             {(provided) => (
               <Tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {songs.map((song, index) => (
-                  <Draggable key={song.id} draggableId={song.id} index={index}>
+                {likes.map((like, index) => (
+                  <Draggable key={like.id} draggableId={like.id} index={index}>
                     {(provided, snapshot) => (
                       <Tr
                         onDoubleClick={modalOpen}
@@ -179,19 +185,19 @@ function Table() {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        <Td>{ranking[song.id]}</Td>
-                        <Td>{song.title}</Td>
-                        <Td>{song.singer}</Td>
-                        <Td>{song.genre}</Td>
-                        {updateOn[ranking[song.id] - 1] ? (
+                        <Td>{ranking[like.id]}</Td>
+                        <Td>{like.title}</Td>
+                        <Td>{like.singer}</Td>
+                        <Td>{like.genre}</Td>
+                        {updateOn[ranking[like.id] - 1] ? (
                           <td>
                             <UpdateModal
-                              song={song}
-                              rank={ranking[song.id] - 1}
+                              like={like}
+                              rank={ranking[like.id] - 1}
                             />
                           </td>
                         ) : null}
-                        <DeleteTd onClick={(e) => onDelete(song)}>
+                        <DeleteTd onClick={(e) => onDelete(like)}>
                           <DeleteButton>×</DeleteButton>
                         </DeleteTd>
                       </Tr>

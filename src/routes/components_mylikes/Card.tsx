@@ -1,15 +1,15 @@
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
-import { InterfaceSong } from "./atoms_mylikes";
+import { InterfaceLike } from "./atoms_mylikes";
 import { useState } from "react";
 
 interface CardProps {
   key: string;
-  song: InterfaceSong;
+  song: InterfaceLike;
   index: number;
 }
 
-const DraggableCard = styled.div<{ song: InterfaceSong }>`
+const DraggableCard = styled.div<{ song: InterfaceLike }>`
   background-color: white;
   box-shadow: inset 0px 0px 4px 1px rgba(0,0,0,0.7);
   border-radius: 20px;

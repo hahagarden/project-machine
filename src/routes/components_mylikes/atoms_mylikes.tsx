@@ -1,4 +1,9 @@
-import { atom, selector, selectorFamily } from "recoil";
+import { atom, selectorFamily } from "recoil";
+
+export const mylikesCategoryAtom = atom({
+  key: "mylikesCategoryAtom",
+  default: "songs",
+});
 
 export const songGenres = {
   JPOP: "JPOP",
@@ -6,7 +11,7 @@ export const songGenres = {
   POP: "POP",
 };
 
-export interface InterfaceSong {
+export interface InterfaceLike {
   id: string;
   createdAt: number;
   updatedAt: number;
@@ -20,35 +25,24 @@ export interface IRanking {
   [songId: string]: number;
 }
 
-export const songsFireAtom = atom<InterfaceSong[]>({
-  key: "songsFireAtom",
+export const likesFireAtom = atom<InterfaceLike[]>({
+  key: "likesFireAtom",
   default: [],
 });
 
-export const songsFireSelector = selector<InterfaceSong[]>({
-  key: "songsFireSelector",
-  get: ({ get }) => {
-    const songs = get(songsFireAtom);
-    return songs;
-  },
-  set: ({ set }, newValue) => {
-    set(songsFireAtom, newValue);
-  },
-});
-
-export const rankingFireAtom = atom<IRanking>({
-  key: "rankingFireAtom",
+export const likesRankingFireAtom = atom<IRanking>({
+  key: "likesRankingFireAtom",
   default: {},
 });
 
-export const songsGenreSelector = selectorFamily({
-  key: "songsGenreSelector",
+export const likesGenreSelector = selectorFamily({
+  key: "likesGenreSelector",
   get:
     (genre) =>
     ({ get }) => {
-      const songs = get(songsFireAtom);
-      const genreSongs = songs.filter((song) => song.genre == genre);
-      return genreSongs;
+      const likes = get(likesFireAtom);
+      const genreLikes = likes.filter((like) => like.genre == genre);
+      return genreLikes;
     },
 });
 

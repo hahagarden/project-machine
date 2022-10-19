@@ -1,15 +1,19 @@
 import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
-import { registerModalOnAtom, songsFireAtom } from "./atoms_mylikes";
+import {
+  mylikesCategoryAtom,
+  registerModalOnAtom,
+  likesFireAtom,
+} from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link } from "react-router-dom";
 import Genre from "./Genre";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect } from "react";
-import { InterfaceSong } from "./atoms_mylikes";
-import { rankingFireAtom } from "./atoms_mylikes";
+import { InterfaceLike } from "./atoms_mylikes";
+import { likesRankingFireAtom } from "./atoms_mylikes";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
 
@@ -46,61 +50,64 @@ const Button = styled.button`
   }
 `;
 
-function Song() {
+function MyLike() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  console.log("****", currentCategory);
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
-  const [songs, setSongs] = useRecoilState(songsFireAtom);
-  const [ranking, setRanking] = useRecoilState(rankingFireAtom);
+  const [likes, setLikes] = useRecoilState(likesFireAtom);
+  const [ranking, setRanking] = useRecoilState(likesRankingFireAtom);
   const modalOpen = () => {
     setModalOn(true);
   };
   useEffect(() => {
     const q = query(
-      collection(dbService, "songs"),
+      collection(dbService, currentCategory),
       where("creatorId", "==", loggedInUser?.uid)
     );
     onSnapshot(q, (querySnapshot) => {
-      const songsDB = [] as InterfaceSong[];
+      const likesDB = [] as InterfaceLike[];
       querySnapshot.forEach((doc) => {
-        songsDB.push({ ...(doc.data() as InterfaceSong) });
+        likesDB.push({ ...(doc.data() as InterfaceLike) });
       });
-      setSongs(songsDB);
+      setLikes(likesDB);
     });
     console.log("useEffect&snapshot rendered.");
-  }, []);
+  }, [currentCategory]);
   useEffect(() => {
     onSnapshot(
-      doc(dbService, "songs", `ranking_${loggedInUser?.uid}`),
+      doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
       (doc) => {
         setRanking({ ...doc.data() });
       }
     );
-  }, []);
+  }, [currentCategory]);
   useEffect(() => {
-    const orderedSongs = songs.slice();
-    orderedSongs.sort((a, b) => ranking[a.id] - ranking[b.id]);
-    setSongs(orderedSongs);
+    const orderedLikes = likes.slice();
+    orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
+    setLikes(orderedLikes);
   }, [ranking]);
+  console.log(ranking);
   return (
     <>
       <Wrapper>
         <Menu>
           <Button onClick={modalOpen}>Register</Button>
-          {modalOn && <RegisterModal songs={songs} />}
+          {modalOn && <RegisterModal />}
           <Button>
-            <Link to="/mylikes/song/table">Ranking Table</Link>
+            <Link to="table">Ranking Table</Link>
           </Button>
           <Button>
-            <Link to="/mylikes/song/genre">Genre Board</Link>
+            <Link to="genre">Genre Board</Link>
           </Button>
         </Menu>
       </Wrapper>
       <Routes>
-        <Route path="/table" element={<Table />} />
-        <Route path="/genre" element={<Genre />} />
+        <Route path="table" element={<Table />} />
+        <Route path="genre" element={<Genre />} />
       </Routes>
     </>
   );
 }
 
-export default Song;
+export default MyLike;
