@@ -2,10 +2,10 @@ import { useRecoilState } from "recoil";
 import React, { useEffect } from "react";
 import {
   updateModalOnAtom,
-  songsFireSelector,
   InterfaceSong,
   rankingFireAtom,
   IRanking,
+  songsFireAtom,
 } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
@@ -89,7 +89,7 @@ interface ITableHeader {
 function Table() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const ranking = useRecoilValue(rankingFireAtom);
-  const songs = useRecoilValue(songsFireSelector);
+  const songs = useRecoilValue(songsFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   useEffect(() => {
     setUpdateOn(() => Array.from({ length: songs.length }, () => false));

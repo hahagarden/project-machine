@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { Droppable } from "react-beautiful-dnd";
-import { songsSelector } from "./atoms_mylikes";
+import { songsGenreSelector } from "./atoms_mylikes";
 import Card from "./Card";
 
 const animation_board = keyframes`
@@ -45,7 +45,7 @@ const DroppableBoard = styled.div`
 `;
 
 function Board({ boardId }: BoardProps) {
-  const genreSongs = useRecoilValue(songsSelector(boardId));
+  const genreSongs = useRecoilValue(songsGenreSelector(boardId));
   return (
     <Wrapper>
       <Title>{boardId}</Title>

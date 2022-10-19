@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { registerModalOnAtom } from "./atoms_mylikes";
+import { registerModalOnAtom, songGenres } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { dbService } from "../../fbase";
@@ -224,24 +224,17 @@ function Modal({ songs }: ModalProps) {
           </InputLine>
           <GenreInputLine>
             <Label>genre</Label>
-            <Label id="JPOP">
-              <GenreInput
-                type="radio"
-                id="JPOP"
-                value="JPOP"
-                {...register("genre", { required: true })}
-              />
-              JPOP
-            </Label>
-            <Label id="KPOP">
-              <GenreInput
-                type="radio"
-                id="KPOP"
-                value="KPOP"
-                {...register("genre", { required: true })}
-              />
-              KPOP
-            </Label>
+            {Object.values(songGenres).map((genre) => (
+              <Label id={genre}>
+                <GenreInput
+                  type="radio"
+                  id={genre}
+                  value={genre}
+                  {...register("genre", { required: true })}
+                />
+                {genre}
+              </Label>
+            ))}
           </GenreInputLine>
           <Button>Add</Button>
         </Form>

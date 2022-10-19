@@ -1,28 +1,10 @@
 import { atom, selector, selectorFamily } from "recoil";
 
-const localStorageEffect =
-  (key: string) =>
-  ({ setSelf, onSet }: any) => {
-    const savedValue = localStorage.getItem(key);
-    if (savedValue != null) {
-      setSelf(JSON.parse(savedValue));
-    }
-    onSet((newValue: ISong) => {
-      localStorage.setItem(key, JSON.stringify(newValue));
-    });
-  };
-
-export enum songGenres {
-  "JPOP" = "JPOP",
-  "KPOP" = "KPOP",
-}
-export interface ISong {
-  id: string;
-  rank: number;
-  title: string;
-  singer: string;
-  genre: string;
-}
+export const songGenres = {
+  JPOP: "JPOP",
+  KPOP: "KPOP",
+  POP: "POP",
+};
 
 export interface InterfaceSong {
   id: string;
@@ -39,12 +21,12 @@ export interface IRanking {
 }
 
 export const songsFireAtom = atom<InterfaceSong[]>({
-  key: "songsAtom",
+  key: "songsFireAtom",
   default: [],
 });
 
 export const songsFireSelector = selector<InterfaceSong[]>({
-  key: "songsSelector",
+  key: "songsFireSelector",
   get: ({ get }) => {
     const songs = get(songsFireAtom);
     return songs;
@@ -55,22 +37,16 @@ export const songsFireSelector = selector<InterfaceSong[]>({
 });
 
 export const rankingFireAtom = atom<IRanking>({
-  key: "rankingAtom",
+  key: "rankingFireAtom",
   default: {},
 });
 
-export const songsAtom = atom<ISong[]>({
-  key: "songs",
-  default: [],
-  effects: [localStorageEffect("songs")],
-});
-
-export const songsSelector = selectorFamily({
+export const songsGenreSelector = selectorFamily({
   key: "songsGenreSelector",
   get:
     (genre) =>
     ({ get }) => {
-      const songs = get(songsAtom);
+      const songs = get(songsFireAtom);
       const genreSongs = songs.filter((song) => song.genre == genre);
       return genreSongs;
     },
