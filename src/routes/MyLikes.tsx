@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import MyLike from "./components_mylikes/Song";
+import MyLike from "./components_mylikes/MyLike";
 import { mylikesCategoryAtom } from "./components_mylikes/atoms_mylikes";
 
 const Wrapper = styled.div`
