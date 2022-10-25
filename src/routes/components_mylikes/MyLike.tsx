@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
 import {
-  mylikesCategoryAtom,
+  myLikesCategoryAtom,
   registerModalOnAtom,
   likesFireAtom,
 } from "./atoms_mylikes";
@@ -52,7 +52,7 @@ const Button = styled.button`
 
 function MyLike() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   console.log("****", currentCategory);
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const [likes, setLikes] = useRecoilState(likesFireAtom);

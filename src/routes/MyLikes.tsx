@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import MyLike from "./components_mylikes/MyLike";
-import { mylikesCategoryAtom } from "./components_mylikes/atoms_mylikes";
+import {
+  myLikesCategoryAtom,
+  myLikesTemplateAtom,
+} from "./components_mylikes/atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { dbService } from "../fbase";
@@ -60,7 +63,7 @@ interface ItempForm {
 }
 
 function MyLikes() {
-  const setMyLikesCategory = useSetRecoilState(mylikesCategoryAtom);
+  const setMyLikesCategory = useSetRecoilState(myLikesCategoryAtom);
   const navigate = useNavigate();
   const onClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const currentCategory = event.currentTarget.innerText;
@@ -68,10 +71,23 @@ function MyLikes() {
     navigate(`/mylikes/${currentCategory}/table`);
   };
 
-  const [myLikesTemplate, setMyLikesTemplate] = useState({});
+  const [myLikesTemplate, setMyLikesTemplate] =
+    useRecoilState(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const { register, handleSubmit } = useForm<ItempForm>();
   const [addTempCategory, setAddTempCategory] = useState(false);
+  useEffect(() => {
+    onSnapshot(
+      doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
+      (doc) => {
+        let templateDB = {};
+        templateDB = { ...templateDB, ...doc.data() };
+        setMyLikesTemplate(templateDB);
+      }
+    );
+    console.log("mylikes_template set.");
+  }, []);
+
   const tempClick = () => {
     setAddTempCategory((prev) => !prev);
   };
@@ -91,19 +107,8 @@ function MyLikes() {
       console.error("Error adding document", e);
     }
   };
-  useEffect(() => {
-    onSnapshot(
-      doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
-      (doc) => {
-        let templateDB = {};
-        templateDB = { ...templateDB, ...doc.data() };
-        setMyLikesTemplate(templateDB);
-      }
-    );
-    console.log("mylikes_template set.");
-  }, []);
-  console.log("template----", myLikesTemplate);
 
+  console.log("template----", myLikesTemplate);
   return (
     <>
       <Wrapper>
@@ -117,7 +122,7 @@ function MyLikes() {
                 <input id="categoryName" {...register("categoryName")}></input>
                 <label htmlFor="inputInfos">input infos</label>
                 <input id="inputInfos" {...register("inputInfos")}></input>
-                <label htmlFor="radioInfo">radio infos</label>
+                <label htmlFor="radioInfo">radio info</label>
                 <input id="radioInfo" {...register("radioInfo")}></input>
                 <label htmlFor="radioInfos">radio infos</label>
                 <input id="radioInfos" {...register("radioInfos")}></input>

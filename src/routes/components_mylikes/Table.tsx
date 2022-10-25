@@ -6,7 +6,8 @@ import {
   likesRankingFireAtom,
   IRanking,
   likesFireAtom,
-  mylikesCategoryAtom,
+  myLikesCategoryAtom,
+  myLikesTemplateAtom,
 } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
@@ -38,11 +39,14 @@ const TableArea = styled.table`
 
 const Tbody = styled.tbody``;
 
-const Tr = styled.tr`
+const Tr = styled.tr<{ headerLength: number }>`
   position: relative;
   font-size: 20px;
   display: grid;
-  grid-template-columns: 0.7fr 2fr 1fr 0.7fr;
+  grid-template-columns: 0.5fr 1.5fr repeat(
+      ${(props) => props.headerLength - 2},
+      1fr
+    );
 `;
 
 const Th = styled.th`
@@ -83,13 +87,10 @@ const DeleteButton = styled.button`
 
 const Area = styled.div``;
 
-interface ITableHeader {
-  [key: string]: string;
-}
-
 function Table() {
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const ranking = useRecoilValue(likesRankingFireAtom);
   const likes = useRecoilValue(likesFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
@@ -109,12 +110,7 @@ function Table() {
       return copyCurrent;
     });
   };
-  const tableHeader: ITableHeader = {
-    rank: "Rank",
-    title: "Title",
-    singer: "Singer",
-    genre: "Genre",
-  };
+
   const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
     const rankingDoc = doc(
       dbService,
@@ -159,15 +155,31 @@ function Table() {
     delete copyRanking[like.id];
     setNewRanking(copyRanking, like.id);
   };
+  const TrLength =
+    (myLikesTemplate[currentCategory]?.inputInfos.split(",").length || 0) +
+    (myLikesTemplate[currentCategory]?.radioInfo ? 1 : 0) +
+    1;
+
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
         <TableArea>
           <thead>
-            <Tr>
-              {Object.keys(tableHeader).map((header, index) => (
-                <Th key={index}>{tableHeader[header]}</Th>
-              ))}
+            <Tr headerLength={TrLength}>
+              <Th>Rank</Th>
+              {myLikesTemplate[currentCategory]?.inputInfos
+                .split(",")
+                .map((header, index) => (
+                  <Th key={index}>
+                    {header.charAt(0).toUpperCase() + header.slice(1)}
+                  </Th>
+                ))}
+              <Th>
+                {(myLikesTemplate[currentCategory]?.radioInfo
+                  .charAt(0)
+                  .toUpperCase() || "") +
+                  (myLikesTemplate[currentCategory]?.radioInfo.slice(1) || "")}
+              </Th>
             </Tr>
           </thead>
           <Droppable droppableId={"table"}>
@@ -177,6 +189,7 @@ function Table() {
                   <Draggable key={like.id} draggableId={like.id} index={index}>
                     {(provided, snapshot) => (
                       <Tr
+                        headerLength={TrLength}
                         onDoubleClick={modalOpen}
                         ref={provided.innerRef}
                         {...provided.draggableProps}

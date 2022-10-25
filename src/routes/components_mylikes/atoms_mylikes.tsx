@@ -1,6 +1,15 @@
 import { atom, selectorFamily } from "recoil";
 
-export const mylikesCategoryAtom = atom({
+export interface ITemplate {
+  [category: string]: { [key: string]: string } | null;
+}
+
+export const myLikesTemplateAtom = atom<ITemplate>({
+  key: "mylikesTemplateAtom",
+  default: {},
+});
+
+export const myLikesCategoryAtom = atom({
   key: "mylikesCategoryAtom",
   default: "songs",
 });

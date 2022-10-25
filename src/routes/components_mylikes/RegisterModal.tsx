@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 import {
   registerModalOnAtom,
   songGenres,
-  mylikesCategoryAtom,
+  myLikesCategoryAtom,
   likesFireAtom,
 } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
@@ -167,7 +167,7 @@ const Button = styled.button`
 
 function Modal() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(mylikesCategoryAtom);
+  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const likes = useRecoilValue(likesFireAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();
