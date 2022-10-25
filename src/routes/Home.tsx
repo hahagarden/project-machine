@@ -90,7 +90,6 @@ function Home() {
   };
   return (
     <>
-      (
       <Wrapper>
         <Header>
           <Title>
@@ -121,7 +120,6 @@ function Home() {
           </Routes>
         </Container>
       </Wrapper>
-      )
     </>
   );
 }

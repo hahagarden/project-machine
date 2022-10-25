@@ -1,5 +1,5 @@
 import {
-  InterfaceLike,
+  ILike,
   likesFireAtom,
   updateModalOnAtom,
   songGenres,
@@ -19,7 +19,7 @@ const animation_show = keyframes`
     };
   `;
 interface IUpdateModalProps {
-  like: InterfaceLike;
+  like: ILike;
   rank: number;
 }
 

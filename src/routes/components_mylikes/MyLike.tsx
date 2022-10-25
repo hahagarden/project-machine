@@ -12,7 +12,7 @@ import Genre from "./Genre";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect } from "react";
-import { InterfaceLike } from "./atoms_mylikes";
+import { ILike } from "./atoms_mylikes";
 import { likesRankingFireAtom } from "./atoms_mylikes";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
@@ -66,9 +66,9 @@ function MyLike() {
       where("creatorId", "==", loggedInUser?.uid)
     );
     onSnapshot(q, (querySnapshot) => {
-      const likesDB = [] as InterfaceLike[];
+      const likesDB = [] as ILike[];
       querySnapshot.forEach((doc) => {
-        likesDB.push({ ...(doc.data() as InterfaceLike) });
+        likesDB.push({ ...(doc.data() as ILike) });
       });
       setLikes(likesDB);
     });

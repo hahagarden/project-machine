@@ -2,7 +2,7 @@ import { useRecoilState } from "recoil";
 import React, { useEffect } from "react";
 import {
   updateModalOnAtom,
-  InterfaceLike,
+  ILike,
   likesRankingFireAtom,
   IRanking,
   likesFireAtom,
@@ -115,10 +115,7 @@ function Table() {
     singer: "Singer",
     genre: "Genre",
   };
-  const setNewRanking = async (
-    newRanking: IRanking,
-    likeId?: InterfaceLike["id"]
-  ) => {
+  const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
     const rankingDoc = doc(
       dbService,
       currentCategory,
@@ -151,7 +148,7 @@ function Table() {
     }
     setNewRanking(copyRanking);
   };
-  const onDelete = async (like: InterfaceLike) => {
+  const onDelete = async (like: ILike) => {
     await deleteDoc(doc(dbService, currentCategory, like.id));
     const copyRanking = Object.assign({}, ranking);
     Object.keys(copyRanking).forEach(

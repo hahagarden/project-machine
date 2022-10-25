@@ -11,7 +11,7 @@ export const songGenres = {
   POP: "POP",
 };
 
-export interface InterfaceLike {
+export interface ILike {
   id: string;
   createdAt: number;
   updatedAt: number;
@@ -25,7 +25,7 @@ export interface IRanking {
   [songId: string]: number;
 }
 
-export const likesFireAtom = atom<InterfaceLike[]>({
+export const likesFireAtom = atom<ILike[]>({
   key: "likesFireAtom",
   default: [],
 });
