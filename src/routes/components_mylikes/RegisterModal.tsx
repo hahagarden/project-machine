@@ -4,6 +4,7 @@ import {
   songGenres,
   myLikesCategoryAtom,
   likesFireAtom,
+  myLikesTemplateAtom,
 } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
@@ -69,9 +70,7 @@ const Container = styled.div`
 `;
 
 interface IForm {
-  title: string;
-  singer: string;
-  genre: string;
+  [key: string]: string;
 }
 
 const Form = styled.form`
@@ -166,6 +165,7 @@ const Button = styled.button`
 `;
 
 function Modal() {
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const likes = useRecoilValue(likesFireAtom);
@@ -174,17 +174,15 @@ function Modal() {
   const onSubmit = async (data: IForm) => {
     const timestamp = Date.now();
     const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
-    const newSong = {
-      title: data.title,
-      singer: data.singer,
-      genre: data.genre,
+    const baseInfo = {
+      ...data,
       creatorId: loggedInUser?.uid,
       createdAt: timestamp,
       updatedAt: timestamp,
       id: likeId,
     };
     try {
-      await setDoc(doc(dbService, currentCategory, likeId), newSong);
+      await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
       await setDoc(
         doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
         { [likeId]: likes.length + 1 },
@@ -206,38 +204,41 @@ function Modal() {
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <InputLine>
-            <Label htmlFor="title">title</Label>
-            <Input
-              id="title"
-              placeholder="title"
-              autoComplete="off"
-              {...register("title", { required: true })}
-            ></Input>
-          </InputLine>
-          <InputLine>
-            <Label htmlFor="singer">singer</Label>
-            <Input
-              id="singer"
-              placeholder="singer"
-              autoComplete="off"
-              {...register("singer", { required: true })}
-            ></Input>
-          </InputLine>
-          <GenreInputLine>
-            <Label>genre</Label>
-            {Object.values(songGenres).map((genre) => (
-              <Label key={genre} id={genre}>
-                <GenreInput
-                  type="radio"
-                  id={genre}
-                  value={genre}
-                  {...register("genre", { required: true })}
+          {myLikesTemplate[currentCategory]?.typingAttrs
+            .split(",")
+            .map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input
+                  id={header}
+                  placeholder={header}
+                  autoComplete="off"
+                  {...register(header, { required: true })}
                 />
-                {genre}
-              </Label>
+              </InputLine>
             ))}
-          </GenreInputLine>
+          {myLikesTemplate[currentCategory]?.selectingAttr ? (
+            <InputLine>
+              <Label htmlFor={myLikesTemplate[currentCategory]?.selectingAttr}>
+                {myLikesTemplate[currentCategory]?.selectingAttr}
+              </Label>
+              <select
+                id={myLikesTemplate[currentCategory]?.selectingAttr}
+                {...register(
+                  myLikesTemplate[currentCategory]?.selectingAttr || "",
+                  { required: true }
+                )}
+              >
+                {myLikesTemplate[currentCategory]?.selectOptions
+                  .split(",")
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+              </select>
+            </InputLine>
+          ) : null}
           <Button>Add</Button>
         </Form>
       </Container>

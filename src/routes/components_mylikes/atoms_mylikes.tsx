@@ -28,6 +28,7 @@ export interface ILike {
   genre: string;
   singer: string;
   title: string;
+  [key: string]: string | number;
 }
 
 export interface IRanking {

@@ -156,8 +156,8 @@ function Table() {
     setNewRanking(copyRanking, like.id);
   };
   const TrLength =
-    (myLikesTemplate[currentCategory]?.inputInfos.split(",").length || 0) +
-    (myLikesTemplate[currentCategory]?.radioInfo ? 1 : 0) +
+    (myLikesTemplate[currentCategory]?.typingAttrs.split(",").length || 0) +
+    (myLikesTemplate[currentCategory]?.selectingAttr ? 1 : 0) +
     1;
 
   return (
@@ -167,7 +167,7 @@ function Table() {
           <thead>
             <Tr headerLength={TrLength}>
               <Th>Rank</Th>
-              {myLikesTemplate[currentCategory]?.inputInfos
+              {myLikesTemplate[currentCategory]?.typingAttrs
                 .split(",")
                 .map((header, index) => (
                   <Th key={index}>
@@ -175,10 +175,11 @@ function Table() {
                   </Th>
                 ))}
               <Th>
-                {(myLikesTemplate[currentCategory]?.radioInfo
+                {(myLikesTemplate[currentCategory]?.selectingAttr
                   .charAt(0)
                   .toUpperCase() || "") +
-                  (myLikesTemplate[currentCategory]?.radioInfo.slice(1) || "")}
+                  (myLikesTemplate[currentCategory]?.selectingAttr.slice(1) ||
+                    "")}
               </Th>
             </Tr>
           </thead>
@@ -196,9 +197,22 @@ function Table() {
                         {...provided.dragHandleProps}
                       >
                         <Td>{ranking[like.id]}</Td>
-                        <Td>{like.title}</Td>
-                        <Td>{like.singer}</Td>
-                        <Td>{like.genre}</Td>
+                        {myLikesTemplate[currentCategory]?.typingAttrs
+                          .split(",")
+                          .map((attr) => (
+                            <Td>{like[attr]}</Td>
+                          ))}
+                        {myLikesTemplate[currentCategory]?.selectingAttr ? (
+                          <Td>
+                            {
+                              like[
+                                myLikesTemplate[currentCategory]
+                                  ?.selectingAttr || ""
+                              ]
+                            }
+                          </Td>
+                        ) : null}
+
                         {updateOn[ranking[like.id] - 1] ? (
                           <td>
                             <UpdateModal

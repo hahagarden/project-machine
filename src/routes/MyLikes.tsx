@@ -57,9 +57,9 @@ const Button = styled.button`
 
 interface ItempForm {
   categoryName: string;
-  inputInfos: string;
-  radioInfo: string;
-  radioInfos: string;
+  typingAttrs: string;
+  selectingAttr: string;
+  selectOptions: string;
 }
 
 function MyLikes() {
@@ -93,9 +93,9 @@ function MyLikes() {
   };
   const tempSubmit = async (data: ItempForm) => {
     const categoryTemplate = {
-      inputInfos: data.inputInfos.replace(/ /g, ""),
-      radioInfo: data.radioInfo.replace(/ /g, ""),
-      raedioInfos: data.radioInfos.replace(/ /g, ""),
+      typingAttrs: data.typingAttrs.replace(/ /g, ""),
+      selectingAttr: data.selectingAttr.replace(/ /g, ""),
+      selectOptions: data.selectOptions.replace(/ /g, ""),
     };
     try {
       await setDoc(
@@ -120,12 +120,18 @@ function MyLikes() {
               <form onSubmit={handleSubmit(tempSubmit)}>
                 <label htmlFor="categoryName">category Name</label>
                 <input id="categoryName" {...register("categoryName")}></input>
-                <label htmlFor="inputInfos">input infos</label>
-                <input id="inputInfos" {...register("inputInfos")}></input>
-                <label htmlFor="radioInfo">radio info</label>
-                <input id="radioInfo" {...register("radioInfo")}></input>
-                <label htmlFor="radioInfos">radio infos</label>
-                <input id="radioInfos" {...register("radioInfos")}></input>
+                <label htmlFor="typingAttrs">typable Attributes</label>
+                <input id="typingAttrs" {...register("typingAttrs")}></input>
+                <label htmlFor="selectingAttr">selectable Attribute</label>
+                <input
+                  id="selectingAttr"
+                  {...register("selectingAttr")}
+                ></input>
+                <label htmlFor="selectOptions">select Options</label>
+                <input
+                  id="selectOptions"
+                  {...register("selectOptions")}
+                ></input>
                 <button>submit</button>
               </form>
             ) : null}
