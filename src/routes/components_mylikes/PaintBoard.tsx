@@ -1,8 +1,10 @@
 import styled, { keyframes } from "styled-components";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { Droppable } from "react-beautiful-dnd";
-import { likesGenreSelector } from "./atoms_mylikes";
+import { likesGenreSelector, myLikesCategoryAtom } from "./atoms_mylikes";
 import PaintCard from "./PaintCard";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 const animation_board = keyframes`
   0%{
@@ -45,6 +47,12 @@ const DroppableBoard = styled.div`
 `;
 
 function PaintBoard({ boardId }: BoardProps) {
+  const [currentCategory, setCurrentCategory] =
+    useRecoilState(myLikesCategoryAtom);
+  const { category } = useParams();
+  useEffect(() => {
+    setCurrentCategory(category ?? "");
+  }, [category]);
   const selectedLikes = useRecoilValue(likesGenreSelector(boardId));
   return (
     <Wrapper>

@@ -22,6 +22,7 @@ import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
+import { useParams } from "react-router-dom";
 
 const animation = keyframes`
   from{
@@ -88,9 +89,10 @@ const DeleteButton = styled.button`
 const Area = styled.div``;
 
 function Table() {
+  const { category } = useParams();
+  const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const ranking = useRecoilValue(likesRankingFireAtom);
   const likes = useRecoilValue(likesFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);

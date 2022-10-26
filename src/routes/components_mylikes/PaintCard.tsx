@@ -7,6 +7,7 @@ import {
 } from "./atoms_mylikes";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
+import { useParams } from "react-router-dom";
 
 interface CardProps {
   key: string;
@@ -33,7 +34,8 @@ const DraggableCard = styled.div<{ like: ILike }>`
 `;
 
 function PaintCard({ like, index }: CardProps) {
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
+  const { category } = useParams();
+  const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const [mouseOn, setMouseOn] = useState(false);
   const onMouseEnter = () => {

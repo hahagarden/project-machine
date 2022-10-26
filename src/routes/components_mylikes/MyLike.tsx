@@ -7,7 +7,7 @@ import {
   likesFireAtom,
 } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useParams } from "react-router-dom";
 import Board from "./Board";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
@@ -51,9 +51,11 @@ const Button = styled.button`
 `;
 
 function MyLike() {
+  const { category } = useParams();
+  console.log("params", category);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
-  console.log("****", currentCategory);
+  const recoilCategory = useRecoilValue(myLikesCategoryAtom);
+  const currentCategory = category ?? "";
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
   const [likes, setLikes] = useRecoilState(likesFireAtom);
   const [ranking, setRanking] = useRecoilState(likesRankingFireAtom);

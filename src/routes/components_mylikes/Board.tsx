@@ -1,4 +1,5 @@
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import styled, { keyframes } from "styled-components";
 import { myLikesCategoryAtom, myLikesTemplateAtom } from "./atoms_mylikes";
@@ -32,7 +33,8 @@ const Boards = styled.div`
 `;
 
 function Board() {
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
+  const { category } = useParams();
+  const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const selectOptions =
     myLikesTemplate[currentCategory]?.selectOptions.split(",");

@@ -12,6 +12,7 @@ import { dbService } from "../../fbase";
 import { setDoc, doc } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
+import { useParams } from "react-router-dom";
 
 const animation_show = keyframes`
   from{
@@ -165,9 +166,10 @@ const Button = styled.button`
 `;
 
 function Modal() {
+  const { category } = useParams();
+  const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const likes = useRecoilValue(likesFireAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();

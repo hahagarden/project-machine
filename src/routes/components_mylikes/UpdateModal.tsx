@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const animation_show = keyframes`
     from{
@@ -167,8 +168,9 @@ interface IForm {
 }
 
 function UpdateModal({ like, rank }: IUpdateModalProps) {
+  const { category } = useParams();
   const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
-  const currentCategory = useRecoilValue(myLikesCategoryAtom);
+  const currentCategory = category ?? "";
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit, setValue } = useForm<IForm>();
   useEffect(() => {
