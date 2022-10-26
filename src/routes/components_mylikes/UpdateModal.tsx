@@ -1,14 +1,15 @@
 import {
   ILike,
-  likesFireAtom,
   updateModalOnAtom,
-  songGenres,
+  myLikesCategoryAtom,
+  myLikesTemplateAtom,
 } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
+import { useEffect } from "react";
 
 const animation_show = keyframes`
     from{
@@ -162,36 +163,41 @@ const Button = styled.button`
 `;
 
 interface IForm {
-  title: string;
-  singer: string;
-  genre: string;
+  [key: string]: string | number;
 }
 
 function UpdateModal({ like, rank }: IUpdateModalProps) {
-  const songs = useRecoilValue(likesFireAtom);
-  const ranking = useRecoilValue(likesFireAtom);
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const currentCategory = useRecoilValue(myLikesCategoryAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  const { register, handleSubmit } = useForm<IForm>({
-    defaultValues: {
-      title: like.title,
-      singer: like.singer,
-      genre: like.genre,
-    },
+  const { register, handleSubmit, setValue } = useForm<IForm>();
+  useEffect(() => {
+    myLikesTemplate[currentCategory]?.typingAttrs
+      .split(",")
+      .forEach((header) => setValue(header, like[header]));
+    setValue(
+      myLikesTemplate[currentCategory]?.selectingAttr || "",
+      like[myLikesTemplate[currentCategory]?.selectingAttr || ""]
+    );
   });
   const onSubmit = async (data: IForm) => {
     if (
-      like.title == data.title &&
-      like.singer == data.singer &&
-      like.genre == data.genre
+      !myLikesTemplate[currentCategory]?.typingAttrs
+        .split(",")
+        .filter((attr) => like[attr] !== data[attr])
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const updatingSong = doc(dbService, "songs", like.id);
+      const updatingSong = doc(dbService, currentCategory, like.id);
+      let updatedLike: { [key: string]: string | number } = {};
+      myLikesTemplate[currentCategory]?.typingAttrs
+        .split(",")
+        .forEach((attr) => (updatedLike[attr] = data[attr]));
+      updatedLike[myLikesTemplate[currentCategory]?.selectingAttr || ""] =
+        data[myLikesTemplate[currentCategory]?.selectingAttr || ""];
       await updateDoc(updatingSong, {
-        title: data.title,
-        singer: data.singer,
-        genre: data.genre,
+        ...updatedLike,
         updatedAt: Date.now(),
       });
       alert("updated.");
@@ -213,37 +219,41 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <InputLine>
-            <Label htmlFor="title">title</Label>
-            <Input
-              id="title"
-              autoComplete="off"
-              {...register("title", { required: true })}
-            ></Input>
-          </InputLine>
-          <InputLine>
-            <Label htmlFor="singer">singer</Label>
-            <Input
-              id="singer"
-              autoComplete="off"
-              {...register("singer", { required: true })}
-            ></Input>
-          </InputLine>
-          <GenreInputLine>
-            <Label>genre</Label>
-            {Object.values(songGenres).map((genre) => (
-              <Label key={genre} id={genre}>
-                <GenreInput
-                  type="radio"
-                  id={genre}
-                  value={genre}
-                  {...register("genre", { required: true })}
+          {myLikesTemplate[currentCategory]?.typingAttrs
+            .split(",")
+            .map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input
+                  id={header}
+                  placeholder={header}
+                  autoComplete="off"
+                  {...register(header, { required: true })}
                 />
-                {genre}
-              </Label>
+              </InputLine>
             ))}
-          </GenreInputLine>
-
+          {myLikesTemplate[currentCategory]?.selectingAttr ? (
+            <InputLine>
+              <Label htmlFor={myLikesTemplate[currentCategory]?.selectingAttr}>
+                {myLikesTemplate[currentCategory]?.selectingAttr}
+              </Label>
+              <select
+                id={myLikesTemplate[currentCategory]?.selectingAttr}
+                {...register(
+                  myLikesTemplate[currentCategory]?.selectingAttr || "",
+                  { required: true }
+                )}
+              >
+                {myLikesTemplate[currentCategory]?.selectOptions
+                  .split(",")
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+              </select>
+            </InputLine>
+          ) : null}
           <Button>Modify</Button>
         </Form>
       </Container>

@@ -200,7 +200,7 @@ function Table() {
                         {myLikesTemplate[currentCategory]?.typingAttrs
                           .split(",")
                           .map((attr) => (
-                            <Td>{like[attr]}</Td>
+                            <Td key={attr}>{like[attr]}</Td>
                           ))}
                         {myLikesTemplate[currentCategory]?.selectingAttr ? (
                           <Td>
