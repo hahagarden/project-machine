@@ -55,7 +55,7 @@ const Button = styled.button`
   }
 `;
 
-interface ItempForm {
+interface IAddCategoryForm {
   categoryName: string;
   typingAttrs: string;
   selectingAttr: string;
@@ -74,8 +74,8 @@ function MyLikes() {
   const [myLikesTemplate, setMyLikesTemplate] =
     useRecoilState(myLikesTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const { register, handleSubmit } = useForm<ItempForm>();
-  const [addTempCategory, setAddTempCategory] = useState(false);
+  const { register, handleSubmit } = useForm<IAddCategoryForm>();
+  const [addCategory, setAddCategory] = useState(false);
   useEffect(() => {
     onSnapshot(
       doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
@@ -88,10 +88,10 @@ function MyLikes() {
     console.log("mylikes_template set.");
   }, []);
 
-  const tempClick = () => {
-    setAddTempCategory((prev) => !prev);
+  const addCategoryClick = () => {
+    setAddCategory((prev) => !prev);
   };
-  const tempSubmit = async (data: ItempForm) => {
+  const addCategorySubmit = async (data: IAddCategoryForm) => {
     const categoryTemplate = {
       typingAttrs: data.typingAttrs.replace(/ /g, ""),
       selectingAttr: data.selectingAttr.replace(/ /g, ""),
@@ -115,13 +115,24 @@ function MyLikes() {
         <Header>
           <Title>
             My Likes
-            <button onClick={tempClick}>temp +</button>
-            {addTempCategory ? (
-              <form onSubmit={handleSubmit(tempSubmit)}>
+            <button onClick={addCategoryClick}> + </button>
+            {addCategory ? (
+              <form onSubmit={handleSubmit(addCategorySubmit)}>
                 <label htmlFor="categoryName">category Name</label>
-                <input id="categoryName" {...register("categoryName")}></input>
+                <input
+                  id="categoryName"
+                  {...register("categoryName", { required: true })}
+                ></input>
                 <label htmlFor="typingAttrs">typable Attributes</label>
-                <input id="typingAttrs" {...register("typingAttrs")}></input>
+                <input
+                  id="typingAttrs"
+                  {...register("typingAttrs", {
+                    required: true,
+                    pattern: /^[a-z,]+$/i,
+                    validate: (value) =>
+                      value.includes("name") || value.includes("title"),
+                  })}
+                ></input>
                 <label htmlFor="selectingAttr">selectable Attribute</label>
                 <input
                   id="selectingAttr"
