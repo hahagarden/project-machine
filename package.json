@@ -55,7 +55,8 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/react-table": "^7.7.12",
     "@types/recoil": "^0.0.9",
-    "@types/styled-components": "^5.1.26"
+    "@types/styled-components": "^5.1.26",
+    "file-loader": "^6.2.0"
   },
   "homepage": "https://hahagarden.github.io/react-masterclass-garden"
 }

@@ -37,8 +37,7 @@ export interface IRanking {
 
 export const likesFireAtom = atom<ILike[]>({
   key: "likesFireAtom",
-  default: [],
-});
+
 
 export const likesRankingFireAtom = atom<IRanking>({
   key: "likesRankingFireAtom",
