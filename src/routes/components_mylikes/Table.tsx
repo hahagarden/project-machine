@@ -1,6 +1,14 @@
-import { useRecoilValue, useRecoilState } from "recoil";
-import { useEffect } from "react";
-import { updateModalOnAtom, songsAtom } from "./atoms_mylikes";
+import { useRecoilState } from "recoil";
+import React, { useEffect } from "react";
+import {
+  updateModalOnAtom,
+  ILike,
+  likesRankingFireAtom,
+  IRanking,
+  likesFireAtom,
+  myLikesCategoryAtom,
+  myLikesTemplateAtom,
+} from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import {
@@ -10,6 +18,11 @@ import {
   Draggable,
 } from "react-beautiful-dnd";
 import { keyframes } from "styled-components";
+import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+import { dbService } from "../../fbase";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../../atom";
+import { useParams } from "react-router-dom";
 
 const animation = keyframes`
   from{
@@ -27,11 +40,14 @@ const TableArea = styled.table`
 
 const Tbody = styled.tbody``;
 
-const Tr = styled.tr`
+const Tr = styled.tr<{ headerLength: number }>`
   position: relative;
   font-size: 20px;
   display: grid;
-  grid-template-columns: 0.7fr 2fr 1fr 0.7fr;
+  grid-template-columns: 0.5fr 1.5fr repeat(
+      ${(props) => props.headerLength - 2},
+      1fr
+    );
 `;
 
 const Th = styled.th`
@@ -72,21 +88,22 @@ const DeleteButton = styled.button`
 
 const Area = styled.div``;
 
-interface ITableHeader {
-  [key: string]: string;
-}
-
 function Table() {
-  const [songs, setSongs] = useRecoilState(songsAtom);
+  const { category } = useParams();
+  const currentCategory = category ?? "";
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const ranking = useRecoilValue(likesRankingFireAtom);
+  const likes = useRecoilValue(likesFireAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   useEffect(() => {
-    setUpdateOn(() => Array.from({ length: songs.length }, () => false));
-  }, [songs]);
+    setUpdateOn(() => Array.from({ length: likes.length }, () => false));
+  }, [likes]);
   const modalOpen = (
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => {
     console.log(event);
-    const targetIndex = songs.findIndex(
+    const targetIndex = likes.findIndex(
       (obj) => obj.id == event.currentTarget.dataset.rbdDraggableId
     );
     setUpdateOn((current) => {
@@ -96,75 +113,117 @@ function Table() {
     });
   };
 
-  const tableHeader: ITableHeader = {
-    rank: "Rank",
-    title: "Title",
-    singer: "Singer",
-    genre: "Genre",
-  };
-
-  const onDragEnd = ({ destination, source }: DropResult) => {
-    if (!destination) return;
-    else {
-      setSongs((current) => {
-        const copySongs = [...current];
-        const targetObj = copySongs[source.index];
-        copySongs.splice(source.index, 1);
-        copySongs.splice(destination.index, 0, targetObj);
-        const newSongs = copySongs.map((song, index) => ({
-          ...song,
-          ["rank"]: index + 1,
-        }));
-        newSongs.sort((a, b) => a.rank - b.rank);
-        return newSongs;
-      });
+  const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
+    const rankingDoc = doc(
+      dbService,
+      currentCategory,
+      `ranking_${loggedInUser?.uid}`
+    );
+    if (likeId) {
+      await updateDoc(rankingDoc, { ...newRanking, [likeId]: deleteField() });
+    } else {
+      await updateDoc(rankingDoc, newRanking);
     }
+    //update firestore
   };
-  const onDelete = (rank: number) => {
-    setSongs((current) => {
-      const copySongs = [...current];
-      copySongs.splice(rank - 1, 1);
-      const newSongs = copySongs.map((song, index) => ({
-        ...song,
-        ["rank"]: index + 1,
-      }));
-      return newSongs;
-    });
+  const onDragEnd = ({ destination, source, draggableId }: DropResult) => {
+    if (!destination) return;
+    const copyRanking = Object.assign({}, ranking);
+    if (destination.index < source.index) {
+      Object.keys(copyRanking).forEach((likeId) => {
+        copyRanking[likeId] >= destination.index + 1 &&
+          copyRanking[likeId] < source.index + 1 &&
+          (copyRanking[likeId] = copyRanking[likeId] + 1);
+      });
+      copyRanking[draggableId] = destination.index + 1;
+    } else if (destination.index > source.index) {
+      Object.keys(copyRanking).forEach((songId) => {
+        copyRanking[songId] > source.index + 1 &&
+          copyRanking[songId] <= destination.index + 1 &&
+          (copyRanking[songId] = copyRanking[songId] - 1);
+      });
+      copyRanking[draggableId] = destination.index + 1;
+    }
+    setNewRanking(copyRanking);
   };
+  const onDelete = async (like: ILike) => {
+    await deleteDoc(doc(dbService, currentCategory, like.id));
+    const copyRanking = Object.assign({}, ranking);
+    Object.keys(copyRanking).forEach(
+      (songId) =>
+        copyRanking[songId] > copyRanking[like.id] &&
+        (copyRanking[songId] = copyRanking[songId] - 1)
+    );
+    delete copyRanking[like.id];
+    setNewRanking(copyRanking, like.id);
+  };
+  const TrLength =
+    (myLikesTemplate[currentCategory]?.typingAttrs.split(",").length || 0) +
+    (myLikesTemplate[currentCategory]?.selectingAttr ? 1 : 0) +
+    1;
 
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
         <TableArea>
           <thead>
-            <Tr>
-              {Object.keys(tableHeader).map((header, index) => (
-                <Th key={index}>{tableHeader[header]}</Th>
-              ))}
+            <Tr headerLength={TrLength}>
+              <Th>Rank</Th>
+              {myLikesTemplate[currentCategory]?.typingAttrs
+                .split(",")
+                .map((header, index) => (
+                  <Th key={index}>
+                    {header.charAt(0).toUpperCase() + header.slice(1)}
+                  </Th>
+                ))}
+              <Th>
+                {(myLikesTemplate[currentCategory]?.selectingAttr
+                  .charAt(0)
+                  .toUpperCase() || "") +
+                  (myLikesTemplate[currentCategory]?.selectingAttr.slice(1) ||
+                    "")}
+              </Th>
             </Tr>
           </thead>
           <Droppable droppableId={"table"}>
             {(provided) => (
               <Tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {songs.map((song, index) => (
-                  <Draggable key={song.id} draggableId={song.id} index={index}>
+                {likes.map((like, index) => (
+                  <Draggable key={like.id} draggableId={like.id} index={index}>
                     {(provided, snapshot) => (
                       <Tr
+                        headerLength={TrLength}
                         onDoubleClick={modalOpen}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        <Td>{song.rank}</Td>
-                        <Td>{song.title}</Td>
-                        <Td>{song.singer}</Td>
-                        <Td>{song.genre}</Td>
-                        {updateOn[song.rank - 1] ? (
+                        <Td>{ranking[like.id]}</Td>
+                        {myLikesTemplate[currentCategory]?.typingAttrs
+                          .split(",")
+                          .map((attr) => (
+                            <Td key={attr}>{like[attr]}</Td>
+                          ))}
+                        {myLikesTemplate[currentCategory]?.selectingAttr ? (
+                          <Td>
+                            {
+                              like[
+                                myLikesTemplate[currentCategory]
+                                  ?.selectingAttr || ""
+                              ]
+                            }
+                          </Td>
+                        ) : null}
+
+                        {updateOn[ranking[like.id] - 1] ? (
                           <td>
-                            <UpdateModal song={song} />
+                            <UpdateModal
+                              like={like}
+                              rank={ranking[like.id] - 1}
+                            />
                           </td>
                         ) : null}
-                        <DeleteTd onClick={(e) => onDelete(song.rank)}>
+                        <DeleteTd onClick={(e) => onDelete(like)}>
                           <DeleteButton>×</DeleteButton>
                         </DeleteTd>
                       </Tr>
@@ -182,73 +241,3 @@ function Table() {
 }
 
 export default Table;
-
-/* const columnData = [
-  { accessor: "rank", Header: "Rank" },
-  { accessor: "title", Header: "Title" },
-  { accessor: "singer", Header: "Singer" },
-  { accessor: "genre", Header: "Genre" },
-];
-
-const Search = ({ onSubmit }: any) => {
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    onSubmit(event.target.elements.filter.value);
-  };
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="filter" />
-      <button>Search</button>
-    </form>
-  );
-};
-
-const Table = () => {
-  const songs = useRecoilValue(songsAtom);
-  const columns = useMemo(() => columnData, []);
-  const data = useMemo(() => songs, [songs]);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    setGlobalFilter,
-  } = useTable({ columns, data } as any, useGlobalFilter, useSortBy);
-  const onReset = () => {
-    setGlobalFilter("");
-  };
-  return (
-    <>
-      <div style={{ display: "flex" }}>
-        <Search onSubmit={setGlobalFilter} />
-        <button onClick={onReset}>↺</button>
-      </div>
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getFooterGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </>
-  );
-}; */

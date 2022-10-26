@@ -1,49 +1,61 @@
-import { atom, selector, selectorFamily } from "recoil";
+import { atom, selectorFamily } from "recoil";
 
-const localStorageEffect =
-  (key: string) =>
-  ({ setSelf, onSet }: any) => {
-    const savedValue = localStorage.getItem(key);
-    if (savedValue != null) {
-      setSelf(JSON.parse(savedValue));
-    }
-    onSet((newValue: ISong) => {
-      localStorage.setItem(key, JSON.stringify(newValue));
-    });
-  };
-
-export enum songGenres {
-  "JPOP" = "JPOP",
-  "KPOP" = "KPOP",
+export interface ITemplate {
+  [category: string]: { [key: string]: string } | null;
 }
-export interface ISong {
+
+export const myLikesTemplateAtom = atom<ITemplate>({
+  key: "mylikesTemplateAtom",
+  default: {},
+});
+
+export const myLikesCategoryAtom = atom({
+  key: "mylikesCategoryAtom",
+  default: "",
+});
+
+export const songGenres = {
+  JPOP: "JPOP",
+  KPOP: "KPOP",
+  POP: "POP",
+};
+
+export interface ILike {
   id: string;
-  rank: number;
-  title: string;
-  singer: string;
+  createdAt: number;
+  updatedAt: number;
+  creatorId: string;
   genre: string;
+  singer: string;
+  title: string;
+  [key: string]: string | number;
 }
 
-export const headerAtom = atom({
-  key: "header",
-  default: false,
-  effects: [localStorageEffect("header")],
+export interface IRanking {
+  [songId: string]: number;
+}
+
+export const likesFireAtom = atom<ILike[]>({
+  key: "likesFireAtom",
+
+
+export const likesRankingFireAtom = atom<IRanking>({
+  key: "likesRankingFireAtom",
+  default: {},
 });
 
-export const songsAtom = atom<ISong[]>({
-  key: "songs",
-  default: [],
-  effects: [localStorageEffect("songs")],
-});
-
-export const songsSelector = selectorFamily({
-  key: "songsSelector",
+export const likesGenreSelector = selectorFamily({
+  key: "likesGenreSelector",
   get:
-    (genre) =>
+    (option) =>
     ({ get }) => {
-      const songs = get(songsAtom);
-      const genreSongs = songs.filter((song) => song.genre == genre);
-      return genreSongs;
+      const likes = get(likesFireAtom);
+      const template = get(myLikesTemplateAtom);
+      const currentCategory = get(myLikesCategoryAtom);
+      const selectedLikes = likes.filter(
+        (like) => like[template[currentCategory]?.selectingAttr || ""] == option
+      );
+      return selectedLikes;
     },
 });
 

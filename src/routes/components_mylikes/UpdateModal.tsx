@@ -1,18 +1,28 @@
-import { ISong, songsAtom, updateModalOnAtom } from "./atoms_mylikes";
+import {
+  ILike,
+  updateModalOnAtom,
+  myLikesCategoryAtom,
+  myLikesTemplateAtom,
+} from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
+import { doc, updateDoc } from "firebase/firestore";
+import { dbService } from "../../fbase";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const animation_show = keyframes`
-  from{
-    opacity:0%;
-  }
-  to{
-    opacity:100%;
-  };
-`;
+    from{
+      opacity:0%;
+    }
+    to{
+      opacity:100%;
+    };
+  `;
 interface IUpdateModalProps {
-  song: ISong;
+  like: ILike;
+  rank: number;
 }
 
 const ModalWindow = styled.div<{ updateOn: boolean }>`
@@ -62,12 +72,6 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-interface IForm {
-  title: string;
-  singer: string;
-  genre: string;
-}
-
 const Form = styled.form`
   position: relative;
   display: flex;
@@ -99,38 +103,38 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width:250px;
-  height: 35px;
-  border: none;
-  border-bottom: 1px solid gray;
-  outline: none;
-  background-color: inherit;
-  color: black;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    border-bottom: 1px solid black;
+    width:250px;
+    height: 35px;
+    border: none;
+    border-bottom: 1px solid gray;
+    outline: none;
+    background-color: inherit;
+    color: black;
+    font-size: 20px;
+    transition: border-bottom 0.3s;
+    &:focus {
+      border-bottom: 1px solid black;
+      }
     }
-  }
-`;
+  `;
 
 const GenreInputLine = styled.div`
-  position: absolute;
-  left: -50px;
-  top: 95px;
-  margin-top: 15px;
-  width: 400px;
-  display: flex;
-  justify-content: center;
-  label {
-    &:nth-child(n+2):nth-child(-n+3) {
-      margin-top:3px;
-      transform: translateX(-5px);
+    position: absolute;
+    left: -50px;
+    top: 95px;
+    margin-top: 15px;
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    label {
+      &:nth-child(n+2):nth-child(-n+3) {
+        margin-top:3px;
+        transform: translateX(-5px);
+      }
     }
-  }
-
-  }
-`;
+  
+    }
+  `;
 
 const GenreInput = styled.input`
   border: none;
@@ -159,40 +163,46 @@ const Button = styled.button`
   }
 `;
 
-function UpdateModal({ song }: IUpdateModalProps) {
-  const [songs, setSongs] = useRecoilState(songsAtom);
+interface IForm {
+  [key: string]: string | number;
+}
+
+function UpdateModal({ like, rank }: IUpdateModalProps) {
+  const { category } = useParams();
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const currentCategory = category ?? "";
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  const { register, handleSubmit } = useForm<IForm>({
-    defaultValues: {
-      title: song.title,
-      singer: song.singer,
-      genre: song.genre,
-    },
+  const { register, handleSubmit, setValue } = useForm<IForm>();
+  useEffect(() => {
+    myLikesTemplate[currentCategory]?.typingAttrs
+      .split(",")
+      .forEach((header) => setValue(header, like[header]));
+    setValue(
+      myLikesTemplate[currentCategory]?.selectingAttr || "",
+      like[myLikesTemplate[currentCategory]?.selectingAttr || ""]
+    );
   });
-  const onSubmit = (data: IForm) => {
+  const onSubmit = async (data: IForm) => {
     if (
-      song.title == data.title &&
-      song.singer == data.singer &&
-      song.genre == data.genre
+      !myLikesTemplate[currentCategory]?.typingAttrs
+        .split(",")
+        .filter((attr) => like[attr] !== data[attr])
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
-      const targetIndex = songs.findIndex((obj) => obj.id == song.id);
-      setSongs((prevSongs) => {
-        const copySongs = [...prevSongs];
-        const newSong = {
-          id: song.id,
-          rank: Number(song.rank),
-          title: data.title,
-          singer: data.singer,
-          genre: data.genre,
-        };
-        copySongs.splice(targetIndex, 1, newSong);
-        copySongs.sort((a, b) => Number(a.rank) - Number(b.rank));
-        return copySongs;
+      const updatingSong = doc(dbService, currentCategory, like.id);
+      let updatedLike: { [key: string]: string | number } = {};
+      myLikesTemplate[currentCategory]?.typingAttrs
+        .split(",")
+        .forEach((attr) => (updatedLike[attr] = data[attr]));
+      updatedLike[myLikesTemplate[currentCategory]?.selectingAttr || ""] =
+        data[myLikesTemplate[currentCategory]?.selectingAttr || ""];
+      await updateDoc(updatingSong, {
+        ...updatedLike,
+        updatedAt: Date.now(),
       });
-      console.log(data);
+      alert("updated.");
     }
   };
   const modalClose = () => {
@@ -204,51 +214,48 @@ function UpdateModal({ song }: IUpdateModalProps) {
     });
   };
   return (
-    <ModalWindow updateOn={updateOn[Number(song.rank) - 1]}>
+    <ModalWindow updateOn={updateOn[rank]}>
       <Header>
         <Title>Update</Title>
         <CloseButton onClick={modalClose}>×</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <InputLine>
-            <Label htmlFor="title">title</Label>
-            <Input
-              id="title"
-              autoComplete="off"
-              {...register("title", { required: true })}
-            ></Input>
-          </InputLine>
-          <InputLine>
-            <Label htmlFor="singer">singer</Label>
-            <Input
-              id="singer"
-              autoComplete="off"
-              {...register("singer", { required: true })}
-            ></Input>
-          </InputLine>
-          <GenreInputLine>
-            <Label>genre</Label>
-            <Label id="JPOP">
-              <GenreInput
-                type="radio"
-                id="JPOP"
-                value="JPOP"
-                {...register("genre", { required: true })}
-              />
-              JPOP
-            </Label>
-            <Label id="KPOP">
-              <GenreInput
-                type="radio"
-                id="KPOP"
-                value="KPOP"
-                {...register("genre", { required: true })}
-              />
-              KPOP
-            </Label>
-          </GenreInputLine>
-
+          {myLikesTemplate[currentCategory]?.typingAttrs
+            .split(",")
+            .map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input
+                  id={header}
+                  placeholder={header}
+                  autoComplete="off"
+                  {...register(header, { required: true })}
+                />
+              </InputLine>
+            ))}
+          {myLikesTemplate[currentCategory]?.selectingAttr ? (
+            <InputLine>
+              <Label htmlFor={myLikesTemplate[currentCategory]?.selectingAttr}>
+                {myLikesTemplate[currentCategory]?.selectingAttr}
+              </Label>
+              <select
+                id={myLikesTemplate[currentCategory]?.selectingAttr}
+                {...register(
+                  myLikesTemplate[currentCategory]?.selectingAttr || "",
+                  { required: true }
+                )}
+              >
+                {myLikesTemplate[currentCategory]?.selectOptions
+                  .split(",")
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+              </select>
+            </InputLine>
+          ) : null}
           <Button>Modify</Button>
         </Form>
       </Container>

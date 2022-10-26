@@ -1,64 +1,55 @@
-import styled, { keyframes } from "styled-components";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { Droppable } from "react-beautiful-dnd";
-import { songsSelector } from "./atoms_mylikes";
-import Card from "./Card";
+import styled, { keyframes } from "styled-components";
+import { myLikesCategoryAtom, myLikesTemplateAtom } from "./atoms_mylikes";
+import PaintBoard from "./PaintBoard";
 
-const animation_board = keyframes`
-  0%{
+const animation_boards = keyframes`
+  from{
     opacity:0%;
-    transform:translateY(0%);
   }
-40%{transform:translateY(-5%);}
-
-  100%{
+  to{
     opacity:100%;
-    transform:translateY(0%);
   };
 `;
 
-interface BoardProps {
-  boardId: string;
-}
-
 const Wrapper = styled.div`
-  width: 350px;
-  height: 400px;
-  padding: 10px;
-  background-color: navy;
-  box-shadow: 3px 3px 6px 2px rgba(0, 0, 0, 0.5);
   display: flex;
+  justify-content: center;
+  width: 100%;
+  animation: ${animation_boards} 0.4s ease-out;
+`;
+
+const Boards = styled.div`
+  width: 70%;
+  display: flex;
+  flex-direction: row;
+  padding: 50px;
+  background-color: #f1f2f6;
+  box-shadow: 4px 4px 7px 3px rgba(0, 0, 0, 0.5);
   border-radius: 50px;
-  flex-direction: column;
-  animation: ${animation_board} 0.5s ease-out;
+  justify-content: space-around;
 `;
 
-const Title = styled.h1`
-  text-align: center;
-  font-size: 25px;
-  margin: 15px;
-  color: white;
-`;
-
-const DroppableBoard = styled.div`
-  background-color: transparent;
-`;
-
-function Board({ boardId }: BoardProps) {
-  const genreSongs = useRecoilValue(songsSelector(boardId));
+function Board() {
+  const { category } = useParams();
+  const currentCategory = category ?? "";
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const selectOptions =
+    myLikesTemplate[currentCategory]?.selectOptions.split(",");
+  const onDragEnd = (info: DropResult) => {
+    console.log(info);
+  };
   return (
     <Wrapper>
-      <Title>{boardId}</Title>
-      <Droppable droppableId={boardId}>
-        {(provided) => (
-          <DroppableBoard ref={provided.innerRef} {...provided.droppableProps}>
-            {genreSongs.map((song, index) => (
-              <Card key={song.id} song={song} index={index} />
-            ))}
-            {provided.placeholder}
-          </DroppableBoard>
-        )}
-      </Droppable>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Boards>
+          {selectOptions?.map((option, index) => (
+            <PaintBoard key={index} boardId={option} />
+          ))}
+        </Boards>
+      </DragDropContext>
     </Wrapper>
   );
 }

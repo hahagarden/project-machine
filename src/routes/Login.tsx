@@ -1,8 +1,8 @@
-import { useForm } from "react-hook-form";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { useNavigate } from "react-router-dom";
-import { joinedUserAtom, loggedInUserAtom } from "../atom";
 import styled from "styled-components";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { authService } from "../fbase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -72,61 +72,65 @@ const Button = styled.button`
   }
 `;
 interface ILoginForm {
-  username: string;
+  email: string;
   pw: string;
 }
+
 function Login() {
-  const navigate = useNavigate();
-  const joinedUser = useRecoilValue(joinedUserAtom);
-  const setLoggedInUser = useSetRecoilState(loggedInUserAtom);
+  const navigator = useNavigate();
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<ILoginForm>();
-
   const onSubmit = (data: ILoginForm) => {
-    const targetIndex = joinedUser.findIndex(
-      (user) => user.username === data.username
-    );
-    if (targetIndex == -1)
-      setError("username", { message: "username does not exist." });
-    else if (joinedUser[targetIndex].password !== data.pw)
-      setError("pw", { message: "password does not correct." });
-    else {
-      setLoggedInUser(joinedUser[targetIndex]);
-      alert(`Hello ${data.username}!`);
-      navigate("/");
-    }
+    signInWithEmailAndPassword(authService, data.email, data.pw)
+      .then((user) => {
+        alert(`Hello ${data.email}!`);
+        navigator("/");
+      })
+      .catch((error) => {
+        console.log(error);
+        const errorCode = error.code;
+        switch (errorCode) {
+          case "auth/user-not-found":
+            alert("email does not exist.");
+            break;
+          case "auth/wrong-password":
+            alert("wrong password.");
+            break;
+          default:
+            alert("login inavailable.");
+        }
+      });
   };
-  console.log(errors);
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputLine>
-          <Label htmlFor="username">username</Label>
+          <Label htmlFor="email">email</Label>
           <Input
-            {...register("username", {
+            {...register("email", {
               required: true,
               pattern: {
-                value: /^[a-zA-z0-9]/,
-                message: "alphabet and number only",
+                value: /^[a-zA-z0-9@.]/,
+                message: "email with alphabet and number only",
               },
             })}
-            id="username"
-            placeholder="username"
+            id="email"
+            placeholder="email"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.username?.message}</Span>
+          <Span>{errors?.email?.message}</Span>
         </InputLine>
         <InputLine>
           <Label htmlFor="pw">password</Label>
           <Input
             {...register("pw", {
               required: true,
-              minLength: { value: 4, message: "minimum length is 4" },
-              maxLength: { value: 10, message: "maximum length is 10" },
+              minLength: { value: 6, message: "minimum length is 6" },
+              maxLength: { value: 12, message: "maximum length is 12" },
             })}
             id="pw"
             placeholder="password"

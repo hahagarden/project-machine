@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../atom";
 
 const Container = styled.div`
   padding: 50px;
@@ -23,14 +25,13 @@ const Toy = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
   border: 1px solid white;
   box-shadow: 0 0 10px 0 white, inset 0 0 10px 0px rgba(0, 0, 0, 0.3);
   width: 200px;
   height: 60px;
   font-size: 25px;
-  font-weight: 600;
-
+  font-weight: 500;
+  color: gray;
   a {
     display: block;
     width: 100%;
@@ -39,17 +40,19 @@ const Toy = styled.div`
     line-height: 60px;
     color: white;
   }
+
   &:hover {
     box-shadow: 0 0 15px 7px white, inset 0 0 5px 0px rgba(0, 0, 0, 0.3);
   }
 `;
 
 function Toys() {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   return (
     <Container>
       <Shelf>
         <Toy>
-          <Link to="/mylikes">My Likes</Link>
+          {loggedInUser ? <Link to="/mylikes">My Likes</Link> : "MyLikes"}
         </Toy>
         <Toy></Toy>
         <Toy></Toy>

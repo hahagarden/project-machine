@@ -1,7 +1,18 @@
 import styled, { keyframes } from "styled-components";
-import { registerModalOnAtom, songsAtom } from "./atoms_mylikes";
+import {
+  registerModalOnAtom,
+  songGenres,
+  myLikesCategoryAtom,
+  likesFireAtom,
+  myLikesTemplateAtom,
+} from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
+import { dbService } from "../../fbase";
+import { setDoc, doc } from "firebase/firestore";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../../atom";
+import { useParams } from "react-router-dom";
 
 const animation_show = keyframes`
   from{
@@ -60,9 +71,7 @@ const Container = styled.div`
 `;
 
 interface IForm {
-  title: string;
-  singer: string;
-  genre: string;
+  [key: string]: string;
 }
 
 const Form = styled.form`
@@ -157,29 +166,38 @@ const Button = styled.button`
 `;
 
 function Modal() {
-  const setSongs = useSetRecoilState(songsAtom);
+  const { category } = useParams();
+  const currentCategory = category ?? "";
+  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const likes = useRecoilValue(likesFireAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
-  const { register, handleSubmit } = useForm<IForm>();
-  const onSubmit = (data: IForm) => {
-    setSongs((prevSongs) => {
-      const newSongs = [
-        {
-          id: Date.now() + "",
-          rank: prevSongs.length + 1,
-          title: data.title,
-          singer: data.singer,
-          genre: data.genre,
-        },
-        ...prevSongs,
-      ];
-      newSongs.sort((a, b) => Number(a.rank) - Number(b.rank));
-      return newSongs;
-    });
+  const { register, handleSubmit, reset } = useForm<IForm>();
+  const onSubmit = async (data: IForm) => {
+    const timestamp = Date.now();
+    const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
+    const baseInfo = {
+      ...data,
+      creatorId: loggedInUser?.uid,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      id: likeId,
+    };
+    try {
+      await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
+      await setDoc(
+        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
+        { [likeId]: likes.length + 1 },
+        { merge: true }
+      ); //add ranking_uid document
+    } catch (e) {
+      console.error("Error adding document", e);
+    }
+    reset({ title: "", singer: "", genre: "" });
   };
   const modalClose = () => {
     setRegisterOn(false);
   };
-
   return (
     <ModalWindow registerOn={registerOn}>
       <Header>
@@ -188,47 +206,41 @@ function Modal() {
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <InputLine>
-            <Label htmlFor="title">title</Label>
-            <Input
-              id="title"
-              placeholder="title"
-              autoComplete="off"
-              {...register("title", { required: true })}
-            ></Input>
-          </InputLine>
-          <InputLine>
-            <Label htmlFor="singer">singer</Label>
-            <Input
-              id="singer"
-              placeholder="singer"
-              autoComplete="off"
-              {...register("singer", { required: true })}
-            ></Input>
-          </InputLine>
-
-          <GenreInputLine>
-            <Label>genre</Label>
-            <Label id="JPOP">
-              <GenreInput
-                type="radio"
-                id="JPOP"
-                value="JPOP"
-                {...register("genre", { required: true })}
-              />
-              JPOP
-            </Label>
-            <Label id="KPOP">
-              <GenreInput
-                type="radio"
-                id="KPOP"
-                value="KPOP"
-                {...register("genre", { required: true })}
-              />
-              KPOP
-            </Label>
-          </GenreInputLine>
-
+          {myLikesTemplate[currentCategory]?.typingAttrs
+            .split(",")
+            .map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input
+                  id={header}
+                  placeholder={header}
+                  autoComplete="off"
+                  {...register(header, { required: true })}
+                />
+              </InputLine>
+            ))}
+          {myLikesTemplate[currentCategory]?.selectingAttr ? (
+            <InputLine>
+              <Label htmlFor={myLikesTemplate[currentCategory]?.selectingAttr}>
+                {myLikesTemplate[currentCategory]?.selectingAttr}
+              </Label>
+              <select
+                id={myLikesTemplate[currentCategory]?.selectingAttr}
+                {...register(
+                  myLikesTemplate[currentCategory]?.selectingAttr || "",
+                  { required: true }
+                )}
+              >
+                {myLikesTemplate[currentCategory]?.selectOptions
+                  .split(",")
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+              </select>
+            </InputLine>
+          ) : null}
           <Button>Add</Button>
         </Form>
       </Container>
