@@ -11,7 +11,7 @@ export const myLikesTemplateAtom = atom<ITemplate>({
 
 export const myLikesCategoryAtom = atom({
   key: "mylikesCategoryAtom",
-  default: "songs",
+  default: "",
 });
 
 export const songGenres = {
@@ -48,11 +48,15 @@ export const likesRankingFireAtom = atom<IRanking>({
 export const likesGenreSelector = selectorFamily({
   key: "likesGenreSelector",
   get:
-    (genre) =>
+    (option) =>
     ({ get }) => {
       const likes = get(likesFireAtom);
-      const genreLikes = likes.filter((like) => like.genre == genre);
-      return genreLikes;
+      const template = get(myLikesTemplateAtom);
+      const currentCategory = get(myLikesCategoryAtom);
+      const selectedLikes = likes.filter(
+        (like) => like[template[currentCategory]?.selectingAttr || ""] == option
+      );
+      return selectedLikes;
     },
 });
 

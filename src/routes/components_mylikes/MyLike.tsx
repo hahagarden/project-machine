@@ -8,7 +8,7 @@ import {
 } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link } from "react-router-dom";
-import Genre from "./Genre";
+import Board from "./Board";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect } from "react";
@@ -104,7 +104,7 @@ function MyLike() {
       </Wrapper>
       <Routes>
         <Route path="table" element={<Table />} />
-        <Route path="genre" element={<Genre />} />
+        <Route path="genre" element={<Board />} />
       </Routes>
     </>
   );
