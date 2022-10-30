@@ -1,4 +1,5 @@
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import styled, { keyframes } from "styled-components";
@@ -16,7 +17,9 @@ const animation_boards = keyframes`
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   width: 100%;
   animation: ${animation_boards} 0.4s ease-out;
 `;
@@ -32,24 +35,65 @@ const Boards = styled.div`
   justify-content: space-around;
 `;
 
+const Categories = styled.div`
+  margin: 10px 0;
+`;
+
+const Button = styled.button`
+  background-color: transparent;
+  width: 80px;
+  height: 40px;
+  margin: 0 20px;
+  border: none;
+  font-size: 20px;
+  color: black;
+  text-decoration: underline;
+  transition: 0.2s;
+  cursor:pointer;
+  &:hover {
+    color: #ff0063;}
+  }
+`;
+
 function Board() {
   const { category } = useParams();
   const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const selectOptions =
-    myLikesTemplate[currentCategory]?.selectOptions.split(",");
+  const [currentBoard, setCurrentBoard] = useState<string>(
+    Object.keys(myLikesTemplate[currentCategory].selectingAttrs)[0]
+  );
+  const boardClick = (attr: string) => {
+    setCurrentBoard(attr);
+  };
   const onDragEnd = (info: DropResult) => {
     console.log(info);
   };
   return (
     <Wrapper>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Boards>
-          {selectOptions?.map((option, index) => (
-            <PaintBoard key={index} boardId={option} />
-          ))}
-        </Boards>
-      </DragDropContext>
+      <Categories>
+        {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map(
+          (attr) => (
+            <Button key={attr} onClick={() => boardClick(attr)}>
+              {attr}
+            </Button>
+          )
+        )}
+      </Categories>
+      {currentBoard ? (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Boards>
+            {myLikesTemplate[currentCategory].selectingAttrs[currentBoard].map(
+              (option, index) => (
+                <PaintBoard
+                  key={index}
+                  currentBoard={currentBoard}
+                  boardId={option}
+                />
+              )
+            )}
+          </Boards>
+        </DragDropContext>
+      ) : null}
     </Wrapper>
   );
 }

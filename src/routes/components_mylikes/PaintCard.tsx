@@ -1,10 +1,6 @@
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
-import {
-  ILike,
-  currentCategoryAtom,
-  categoryTemplateAtom,
-} from "./atoms_mylikes";
+import { ILike, categoryTemplateAtom } from "./atoms_mylikes";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { useParams } from "react-router-dom";
@@ -57,11 +53,10 @@ function PaintCard({ like, index }: CardProps) {
         >
           {mouseOn
             ? myLikesTemplate[currentCategory]?.typingAttrs
-                .split(",")
                 .slice(1)
                 .map((attr) => `${like[attr]}`)
-                .join(" || ")
-            : like.title}
+                .join(" | ")
+            : like[myLikesTemplate[currentCategory]?.typingAttrs[0]]}
         </DraggableCard>
       )}
     </Draggable>

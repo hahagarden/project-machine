@@ -49,10 +49,8 @@ const Button = styled.button`
     }
   }
 `;
-
 function MyLike() {
   const { category } = useParams();
-  console.log("params", category);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const recoilCategory = useRecoilValue(currentCategoryAtom);
   const currentCategory = category ?? "";
@@ -89,7 +87,7 @@ function MyLike() {
     orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
     setLikes(orderedLikes);
   }, [ranking]);
-  console.log(ranking);
+
   return (
     <>
       <Wrapper>

@@ -157,10 +157,10 @@ function Table() {
     setNewRanking(copyRanking, like.id);
   };
   const TrLength =
-    (myLikesTemplate[currentCategory]?.typingAttrs.split(",").length || 0) +
-    (myLikesTemplate[currentCategory]?.selectingAttr ? 1 : 0) +
+    (myLikesTemplate[currentCategory].typingAttrs.length || 0) +
+    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length +
     1;
-
+  console.log(myLikesTemplate);
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -168,20 +168,20 @@ function Table() {
           <thead>
             <Tr headerLength={TrLength}>
               <Th>Rank</Th>
-              {myLikesTemplate[currentCategory]?.typingAttrs
-                .split(",")
-                .map((header, index) => (
+              {myLikesTemplate[currentCategory].typingAttrs.map(
+                (attr, index) => (
                   <Th key={index}>
-                    {header.charAt(0).toUpperCase() + header.slice(1)}
+                    {attr.charAt(0).toUpperCase() + attr.slice(1)}
                   </Th>
-                ))}
-              <Th>
-                {(myLikesTemplate[currentCategory]?.selectingAttr
-                  .charAt(0)
-                  .toUpperCase() || "") +
-                  (myLikesTemplate[currentCategory]?.selectingAttr.slice(1) ||
-                    "")}
-              </Th>
+                )
+              )}
+              {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map(
+                (attr, index) => (
+                  <Th key={index}>
+                    {attr.charAt(0).toUpperCase() + attr.slice(1)}
+                  </Th>
+                )
+              )}
             </Tr>
           </thead>
           <Droppable droppableId={"table"}>
@@ -198,21 +198,18 @@ function Table() {
                         {...provided.dragHandleProps}
                       >
                         <Td>{ranking[like.id]}</Td>
-                        {myLikesTemplate[currentCategory]?.typingAttrs
-                          .split(",")
-                          .map((attr) => (
+                        {myLikesTemplate[currentCategory]?.typingAttrs.map(
+                          (attr) => (
                             <Td key={attr}>{like[attr]}</Td>
-                          ))}
-                        {myLikesTemplate[currentCategory]?.selectingAttr ? (
-                          <Td>
-                            {
-                              like[
-                                myLikesTemplate[currentCategory]
-                                  ?.selectingAttr || ""
-                              ]
-                            }
-                          </Td>
-                        ) : null}
+                          )
+                        )}
+                        {myLikesTemplate[currentCategory]?.selectingAttrs
+                          ? Object.keys(
+                              myLikesTemplate[currentCategory].selectingAttrs
+                            ).map((attr, index) => (
+                              <Td key={index}>{like[attr]}</Td>
+                            ))
+                          : null}
 
                         {updateOn[ranking[like.id] - 1] ? (
                           <td>

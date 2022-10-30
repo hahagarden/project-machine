@@ -1,16 +1,19 @@
 import { atom, selectorFamily } from "recoil";
 
 export interface ICategoryTemplate {
-  [category: string]: { [key: string]: string } | null;
+  [category: string]: {
+    typingAttrs: string[];
+    selectingAttrs: { [option: string]: string[] };
+  };
 }
 
 export const categoryTemplateAtom = atom<ICategoryTemplate>({
-  key: "categoryTemplateAtom",
+  key: "categoryTemplate",
   default: {},
 });
 
 export const currentCategoryAtom = atom({
-  key: "currentCategoryAtom",
+  key: "currentCategory",
   default: "",
 });
 
@@ -30,32 +33,22 @@ export interface IRanking {
 }
 
 export const likesAtom = atom<ILike[]>({
-  key: "likesAtom",
+  key: "likes",
   default: [],
 });
 
 export const likesRankingAtom = atom<IRanking>({
-  key: "likesRankingAtom",
+  key: "likesRanking",
   default: {},
 });
 
-export const likesBoardSelector = selectorFamily({
-  key: "likesBoardSelector",
-  get:
-    (option) =>
-    ({ get }) => {
-      const likes = get(likesAtom);
-      const template = get(categoryTemplateAtom);
-      const currentCategory = get(currentCategoryAtom);
-      const selectedLikes = likes.filter(
-        (like) => like[template[currentCategory]?.selectingAttr || ""] == option
-      );
-      return selectedLikes;
-    },
+export const addCategoryModalOnAtom = atom({
+  key: "addCategoryModalOn",
+  default: false,
 });
 
 export const registerModalOnAtom = atom({
-  key: "registerModalOnAtom",
+  key: "registerModalOn",
   default: false,
 });
 

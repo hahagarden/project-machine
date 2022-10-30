@@ -173,30 +173,31 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit, setValue } = useForm<IForm>();
   useEffect(() => {
-    myLikesTemplate[currentCategory]?.typingAttrs
-      .split(",")
-      .forEach((header) => setValue(header, like[header]));
-    setValue(
-      myLikesTemplate[currentCategory]?.selectingAttr || "",
-      like[myLikesTemplate[currentCategory]?.selectingAttr || ""]
+    myLikesTemplate[currentCategory]?.typingAttrs.forEach((header) =>
+      setValue(header, like[header])
+    );
+    Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach(
+      (header) => setValue(header, like[header])
     );
   });
+
   const onSubmit = async (data: IForm) => {
     if (
-      !myLikesTemplate[currentCategory]?.typingAttrs
-        .split(",")
-        .filter((attr) => like[attr] !== data[attr])
+      !myLikesTemplate[currentCategory]?.typingAttrs.filter(
+        (attr) => like[attr] !== data[attr]
+      )
     ) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
       const updatingSong = doc(dbService, currentCategory, like.id);
       let updatedLike: { [key: string]: string | number } = {};
-      myLikesTemplate[currentCategory]?.typingAttrs
-        .split(",")
-        .forEach((attr) => (updatedLike[attr] = data[attr]));
-      updatedLike[myLikesTemplate[currentCategory]?.selectingAttr || ""] =
-        data[myLikesTemplate[currentCategory]?.selectingAttr || ""];
+      myLikesTemplate[currentCategory]?.typingAttrs.forEach(
+        (attr) => (updatedLike[attr] = data[attr])
+      );
+      Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach(
+        (attr) => (updatedLike[attr] = data[attr])
+      );
       await updateDoc(updatingSong, {
         ...updatedLike,
         updatedAt: Date.now(),
@@ -220,41 +221,37 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingAttrs
-            .split(",")
-            .map((header) => (
-              <InputLine key={header}>
-                <Label htmlFor="header">{header}</Label>
-                <Input
-                  id={header}
-                  placeholder={header}
-                  autoComplete="off"
-                  {...register(header, { required: true })}
-                />
-              </InputLine>
-            ))}
-          {myLikesTemplate[currentCategory]?.selectingAttr ? (
-            <InputLine>
-              <Label htmlFor={myLikesTemplate[currentCategory]?.selectingAttr}>
-                {myLikesTemplate[currentCategory]?.selectingAttr}
-              </Label>
-              <select
-                id={myLikesTemplate[currentCategory]?.selectingAttr}
-                {...register(
-                  myLikesTemplate[currentCategory]?.selectingAttr || "",
-                  { required: true }
-                )}
-              >
-                {myLikesTemplate[currentCategory]?.selectOptions
-                  .split(",")
-                  .map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-              </select>
+          {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
+            <InputLine key={header}>
+              <Label htmlFor="header">{header}</Label>
+              <Input
+                id={header}
+                placeholder={header}
+                autoComplete="off"
+                {...register(header, { required: true })}
+              />
             </InputLine>
-          ) : null}
+          ))}
+          {myLikesTemplate[currentCategory]?.selectingAttrs
+            ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map(
+                (attr) => {
+                  return (
+                    <InputLine>
+                      <Label htmlFor={attr}>{attr}</Label>
+                      <select id={attr} {...register(attr, { required: true })}>
+                        {myLikesTemplate[currentCategory]?.selectingAttrs[
+                          attr
+                        ].map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </InputLine>
+                  );
+                }
+              )
+            : null}
           <Button>Modify</Button>
         </Form>
       </Container>
