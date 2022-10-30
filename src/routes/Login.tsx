@@ -81,12 +81,11 @@ function Login() {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<ILoginForm>();
   const onSubmit = (data: ILoginForm) => {
     signInWithEmailAndPassword(authService, data.email, data.pw)
-      .then((user) => {
+      .then(() => {
         alert(`Hello ${data.email}!`);
         navigator("/");
       })

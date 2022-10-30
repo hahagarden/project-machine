@@ -1,8 +1,7 @@
 import {
   ILike,
   updateModalOnAtom,
-  myLikesCategoryAtom,
-  myLikesTemplateAtom,
+  categoryTemplateAtom,
 } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -169,7 +168,7 @@ interface IForm {
 
 function UpdateModal({ like, rank }: IUpdateModalProps) {
   const { category } = useParams();
-  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const currentCategory = category ?? "";
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit, setValue } = useForm<IForm>();
@@ -205,7 +204,7 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
       alert("updated.");
     }
   };
-  const modalClose = () => {
+  const modalCloseClick = () => {
     setUpdateOn((current) => {
       const copyCurrent = [...current];
       const currentIndex = copyCurrent.indexOf(true);
@@ -217,7 +216,7 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
     <ModalWindow updateOn={updateOn[rank]}>
       <Header>
         <Title>Update</Title>
-        <CloseButton onClick={modalClose}>×</CloseButton>
+        <CloseButton onClick={modalCloseClick}>×</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>

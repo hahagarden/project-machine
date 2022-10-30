@@ -3,8 +3,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import MyLike from "./components_mylikes/MyLike";
 import {
-  myLikesCategoryAtom,
-  myLikesTemplateAtom,
+  currentCategoryAtom,
+  categoryTemplateAtom,
 } from "./components_mylikes/atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -35,7 +35,7 @@ const Title = styled.div`
   color: white;
 `;
 
-const Menu = styled.div`
+const Categories = styled.div`
   margin: 10px 0;
 `;
 
@@ -63,16 +63,18 @@ interface IAddCategoryForm {
 }
 
 function MyLikes() {
-  const setMyLikesCategory = useSetRecoilState(myLikesCategoryAtom);
+  const setCurrentCategory = useSetRecoilState(currentCategoryAtom);
   const navigate = useNavigate();
-  const onClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const categoryClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     const currentCategory = event.currentTarget.innerText;
-    setMyLikesCategory(currentCategory);
+    setCurrentCategory(currentCategory);
     navigate(`/mylikes/${currentCategory}/table`);
   };
 
-  const [myLikesTemplate, setMyLikesTemplate] =
-    useRecoilState(myLikesTemplateAtom);
+  const [categoryTemplate, setCategoryTemplate] =
+    useRecoilState(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const { register, handleSubmit } = useForm<IAddCategoryForm>();
   const [addCategory, setAddCategory] = useState(false);
@@ -82,12 +84,10 @@ function MyLikes() {
       (doc) => {
         let templateDB = {};
         templateDB = { ...templateDB, ...doc.data() };
-        setMyLikesTemplate(templateDB);
+        setCategoryTemplate(templateDB);
       }
     );
-    console.log("mylikes_template set.");
   }, []);
-
   const addCategoryClick = () => {
     setAddCategory((prev) => !prev);
   };
@@ -108,7 +108,6 @@ function MyLikes() {
     }
   };
 
-  console.log("template----", myLikesTemplate);
   return (
     <>
       <Wrapper>
@@ -147,13 +146,13 @@ function MyLikes() {
               </form>
             ) : null}
           </Title>
-          <Menu>
-            {Object.keys(myLikesTemplate).map((category) => (
-              <Button key={category} onClick={onClick}>
+          <Categories>
+            {Object.keys(categoryTemplate).map((category) => (
+              <Button key={category} onClick={categoryClick}>
                 {category}
               </Button>
             ))}
-          </Menu>
+          </Categories>
         </Header>
         <Routes>
           <Route path="/:category/*" element={<MyLike />} />

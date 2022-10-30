@@ -3,11 +3,10 @@ import React, { useEffect } from "react";
 import {
   updateModalOnAtom,
   ILike,
-  likesRankingFireAtom,
+  likesRankingAtom,
   IRanking,
-  likesFireAtom,
-  myLikesCategoryAtom,
-  myLikesTemplateAtom,
+  likesAtom,
+  categoryTemplateAtom,
 } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
@@ -91,10 +90,10 @@ const Area = styled.div``;
 function Table() {
   const { category } = useParams();
   const currentCategory = category ?? "";
-  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const ranking = useRecoilValue(likesRankingFireAtom);
-  const likes = useRecoilValue(likesFireAtom);
+  const ranking = useRecoilValue(likesRankingAtom);
+  const likes = useRecoilValue(likesAtom);
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   useEffect(() => {
     setUpdateOn(() => Array.from({ length: likes.length }, () => false));

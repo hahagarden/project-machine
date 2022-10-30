@@ -2,9 +2,9 @@ import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
 import {
-  myLikesCategoryAtom,
+  currentCategoryAtom,
   registerModalOnAtom,
-  likesFireAtom,
+  likesAtom,
 } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link, useParams } from "react-router-dom";
@@ -13,7 +13,7 @@ import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useEffect } from "react";
 import { ILike } from "./atoms_mylikes";
-import { likesRankingFireAtom } from "./atoms_mylikes";
+import { likesRankingAtom } from "./atoms_mylikes";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
 
@@ -54,11 +54,11 @@ function MyLike() {
   const { category } = useParams();
   console.log("params", category);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const recoilCategory = useRecoilValue(myLikesCategoryAtom);
+  const recoilCategory = useRecoilValue(currentCategoryAtom);
   const currentCategory = category ?? "";
   const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
-  const [likes, setLikes] = useRecoilState(likesFireAtom);
-  const [ranking, setRanking] = useRecoilState(likesRankingFireAtom);
+  const [likes, setLikes] = useRecoilState(likesAtom);
+  const [ranking, setRanking] = useRecoilState(likesRankingAtom);
   const modalOpen = () => {
     setModalOn(true);
   };

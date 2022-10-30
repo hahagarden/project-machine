@@ -1,24 +1,18 @@
 import { atom, selectorFamily } from "recoil";
 
-export interface ITemplate {
+export interface ICategoryTemplate {
   [category: string]: { [key: string]: string } | null;
 }
 
-export const myLikesTemplateAtom = atom<ITemplate>({
-  key: "mylikesTemplateAtom",
+export const categoryTemplateAtom = atom<ICategoryTemplate>({
+  key: "categoryTemplateAtom",
   default: {},
 });
 
-export const myLikesCategoryAtom = atom({
-  key: "mylikesCategoryAtom",
+export const currentCategoryAtom = atom({
+  key: "currentCategoryAtom",
   default: "",
 });
-
-export const songGenres = {
-  JPOP: "JPOP",
-  KPOP: "KPOP",
-  POP: "POP",
-};
 
 export interface ILike {
   id: string;
@@ -35,23 +29,24 @@ export interface IRanking {
   [songId: string]: number;
 }
 
-export const likesFireAtom = atom<ILike[]>({
-  key: "likesFireAtom",
+export const likesAtom = atom<ILike[]>({
+  key: "likesAtom",
+  default: [],
+});
 
-
-export const likesRankingFireAtom = atom<IRanking>({
-  key: "likesRankingFireAtom",
+export const likesRankingAtom = atom<IRanking>({
+  key: "likesRankingAtom",
   default: {},
 });
 
-export const likesGenreSelector = selectorFamily({
-  key: "likesGenreSelector",
+export const likesBoardSelector = selectorFamily({
+  key: "likesBoardSelector",
   get:
     (option) =>
     ({ get }) => {
-      const likes = get(likesFireAtom);
-      const template = get(myLikesTemplateAtom);
-      const currentCategory = get(myLikesCategoryAtom);
+      const likes = get(likesAtom);
+      const template = get(categoryTemplateAtom);
+      const currentCategory = get(currentCategoryAtom);
       const selectedLikes = likes.filter(
         (like) => like[template[currentCategory]?.selectingAttr || ""] == option
       );
@@ -60,11 +55,11 @@ export const likesGenreSelector = selectorFamily({
 });
 
 export const registerModalOnAtom = atom({
-  key: "registerModalOn",
+  key: "registerModalOnAtom",
   default: false,
 });
 
 export const updateModalOnAtom = atom<boolean[]>({
-  key: "updateModalOn",
+  key: "updateModalOnAtom",
   default: [],
 });

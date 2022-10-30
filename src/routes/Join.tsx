@@ -98,14 +98,13 @@ function Join() {
       );
     }
     createUserWithEmailAndPassword(authService, data.email, data.pw)
-      .then((user) => {
+      .then(() => {
         alert(`welcome ${data.email}!`);
         navigator("/login");
       })
       .catch((error) => {
         console.log(error);
-        const errorCode = error.code;
-        switch (errorCode) {
+        switch (error.code) {
           case "auth/email-already-in-use":
             alert("email already exists.");
             break;

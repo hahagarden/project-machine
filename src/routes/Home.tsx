@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Routes, Route, Link } from "react-router-dom";
-import { signOut } from "firebase/auth";
 import { useRecoilValue } from "recoil";
+import { signOut } from "firebase/auth";
 import Login from "./Login";
 import Join from "./Join";
 import MyLikes from "./MyLikes";
@@ -82,7 +82,7 @@ const Container = styled.div`
 
 function Home() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const logOut = () => {
+  const LogOutClick = () => {
     if (window.confirm("Do you want to log out?"))
       signOut(authService)
         .then(() => alert("logged out"))
@@ -100,7 +100,7 @@ function Home() {
               <Link to="/">Home</Link>
             </Button>
             {loggedInUser ? (
-              <Button onClick={logOut}>Logout</Button>
+              <Button onClick={LogOutClick}>Logout</Button>
             ) : (
               <Button>
                 <Link to="/login">Login</Link>

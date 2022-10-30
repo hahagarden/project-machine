@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
 import {
   ILike,
-  myLikesCategoryAtom,
-  myLikesTemplateAtom,
+  currentCategoryAtom,
+  categoryTemplateAtom,
 } from "./atoms_mylikes";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
@@ -36,7 +36,7 @@ const DraggableCard = styled.div<{ like: ILike }>`
 function PaintCard({ like, index }: CardProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
-  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const [mouseOn, setMouseOn] = useState(false);
   const onMouseEnter = () => {
     setMouseOn(true);

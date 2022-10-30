@@ -3,7 +3,14 @@ import { useSetRecoilState } from "recoil";
 import GlobalStyle from "./styles/GlobalStyle";
 import Router from "./Router";
 import { authService } from "./fbase";
+import { UserMetadata } from "firebase/auth";
 import { loggedInUserAtom } from "./atom";
+
+export interface ILoggedInUser {
+  email: string | null;
+  metadata: UserMetadata;
+  uid: string;
+}
 
 function App() {
   const [init, setInit] = useState(false);
@@ -11,7 +18,7 @@ function App() {
   useEffect(
     authService.onAuthStateChanged((user) => {
       if (user) {
-        const loggedInUser = {
+        const loggedInUser: ILoggedInUser = {
           email: user.email,
           metadata: user.metadata,
           uid: user.uid,

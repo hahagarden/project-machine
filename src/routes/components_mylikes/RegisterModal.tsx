@@ -1,10 +1,8 @@
 import styled, { keyframes } from "styled-components";
 import {
   registerModalOnAtom,
-  songGenres,
-  myLikesCategoryAtom,
-  likesFireAtom,
-  myLikesTemplateAtom,
+  likesAtom,
+  categoryTemplateAtom,
 } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
@@ -70,10 +68,6 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-interface IForm {
-  [key: string]: string;
-}
-
 const Form = styled.form`
   position: relative;
   display: flex;
@@ -120,33 +114,6 @@ const Input = styled.input`
   }
 `;
 
-const GenreInputLine = styled.div`
-  position: absolute;
-  left: -50px;
-  top: 95px;
-  margin-top: 15px;
-  width: 400px;
-  display: flex;
-  justify-content: center;
-  label {
-    &:nth-child(n+2):nth-child(-n+3) {
-      margin-top:3px;
-      transform: translateX(-5px);
-    }
-  }
-
-  }
-`;
-
-const GenreInput = styled.input`
-  border: none;
-  border-bottom: 1px solid gray;
-  outline: none;
-  background-color: inherit;
-  color: black;
-  font-size: 20px;
-`;
-
 const Button = styled.button`
   background-color: transparent;
   border: 1px solid black;
@@ -165,12 +132,16 @@ const Button = styled.button`
   }
 `;
 
+interface IForm {
+  [key: string]: string;
+}
+
 function Modal() {
   const { category } = useParams();
   const currentCategory = category ?? "";
-  const myLikesTemplate = useRecoilValue(myLikesTemplateAtom);
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const likes = useRecoilValue(likesFireAtom);
+  const likes = useRecoilValue(likesAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IForm>();
   const onSubmit = async (data: IForm) => {
@@ -195,14 +166,14 @@ function Modal() {
     }
     reset({ title: "", singer: "", genre: "" });
   };
-  const modalClose = () => {
+  const modalCloseClick = () => {
     setRegisterOn(false);
   };
   return (
     <ModalWindow registerOn={registerOn}>
       <Header>
         <Title>Register</Title>
-        <CloseButton onClick={modalClose}>×</CloseButton>
+        <CloseButton onClick={modalCloseClick}>×</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
